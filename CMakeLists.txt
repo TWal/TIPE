@@ -9,6 +9,7 @@ set(${PROJECT_NAME}_SOURCES
     src/main.cpp
     src/Text8CorpusReader.cpp
     src/DummyModel.cpp
+    src/FirstModel.cpp
     src/Trainer.cpp
 )
 
