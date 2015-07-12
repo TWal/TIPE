@@ -8,16 +8,17 @@
 
 class FirstModel : public Model {
 	public:
+        FirstModel(int n);
 		virtual void train(const std::vector<std::string>& sentence);
-		float hypothesis(int j, std::vector<int> phrase);
-		float error(std::vector<int> phrase);
-		float derivtheta (int l, int j, std::vector<int> phrase);
-		float derivmot (int c, int k, std::vector<int> phrase);
+		float hypothesis(int j, const std::vector<int>& phrase);
+		float error(const std::vector<int>& phrase);
+		float derivTheta(int l, int j, const std::vector<int>& phrase);
+		float derivWord(int c, int k, const std::vector<int>& phrase);
 	private:
-		std::vector<std::vector<float>> theta;
-		std::vector<std::vector<float>> indtovec;
-		int n;
-		std::unordered_map<std::string,int> wordtoind;
+		int _n;
+		std::vector<std::vector<float>> _theta;
+		std::vector<std::vector<float>> _indtovec;
+		std::unordered_map<std::string, int> _wordtoind;
 };
 
 #endif
