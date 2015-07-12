@@ -74,3 +74,21 @@ float FirstModel::derivWord(int c, int k, const std::vector<int>& phrase) {
 	}
 }
 
+int FirstModel::getWordInd(const std::string& word) {
+    auto it = _wordtoind.find(word);
+    if(it != _wordtoind.end()) {
+        return it->second;
+    } else {
+        int id = _indtovec.size();
+        _wordtoind.emplace(word, id);
+        std::vector<float> vec;
+        std::mt19937 gen;
+        std::normal_distribution<float> dist(RANDOM_MEAN, RANDOM_STDDEV);
+        for(int i = 0; i < _n; ++i) {
+            vec.push_back(dist(gen));
+        }
+        _indtovec.push_back(vec);
+        return id;
+    }
+}
+
