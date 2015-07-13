@@ -9,7 +9,7 @@ static const float RANDOM_MEAN = 0.0;
 static const float RANDOM_STDDEV = 3.0;
 
 static float carre(float x) {
-	return x*x;
+    return x*x;
 }
 
 FirstModel::FirstModel(int n, float lambda) :
@@ -30,51 +30,51 @@ void FirstModel::train(const std::vector<std::string>& sentence) {
 }
 
 float FirstModel::hypothesis(int j, const std::vector<int>& phrase) {
-	float S = 0;
-	for (int l = 0; l < 4*_n; l++) {
-		float valthet = _theta[l][j];
-		int c = l/_n;
-		if (c>=2) {
-			c++;
-		}
-		int k = l%_n;
-		float valvec = _indtovec[phrase[c]][k];
-		S += valthet*valvec;
-	}
-	return S;
+    float S = 0;
+    for (int l = 0; l < 4*_n; l++) {
+        float valthet = _theta[l][j];
+        int c = l/_n;
+        if (c>=2) {
+            c++;
+        }
+        int k = l%_n;
+        float valvec = _indtovec[phrase[c]][k];
+        S += valthet*valvec;
+    }
+    return S;
 }
 
 float FirstModel::error(const std::vector<int>& phrase) {
-	float S = 0;
-	for (int j = 0; j<_n; j++) {
-		S += carre(hypothesis(j,phrase) - _indtovec[phrase[2]][j]);
-		for (int l = 0; l<4*_n; l++) {
-			S += _lambda * carre(_theta[l][j]);
-		}
-		for (int i = 0; i<5; i++) {
-			S += _lambda * carre(_indtovec[phrase[i]][j]);
-		}
-	}
-	return S/2;
+    float S = 0;
+    for (int j = 0; j<_n; j++) {
+        S += carre(hypothesis(j,phrase) - _indtovec[phrase[2]][j]);
+        for (int l = 0; l<4*_n; l++) {
+            S += _lambda * carre(_theta[l][j]);
+        }
+        for (int i = 0; i<5; i++) {
+            S += _lambda * carre(_indtovec[phrase[i]][j]);
+        }
+    }
+    return S/2;
 }
 
 float FirstModel::derivTheta(int l, int j, const std::vector<int>& phrase) {
-	int c = l/_n;
-	c += (c>=2);
-	int k = l%_n;
-	return (hypothesis(j, phrase)-_indtovec[phrase[2]][j])*_indtovec[phrase[c]][k];
+    int c = l/_n;
+    c += (c>=2);
+    int k = l%_n;
+    return (hypothesis(j, phrase)-_indtovec[phrase[2]][j])*_indtovec[phrase[c]][k];
 }
 
 float FirstModel::derivWord(int c, int k, const std::vector<int>& phrase) {
-	if (c == 2) {
-		return _indtovec[phrase[c]][k]-hypothesis(k, phrase);
-	} else {
-		float S = 0;
-		for (int j=0; j < _n; j++) {
-			S += _theta[(c-(c>2))*_n+k][j]*(hypothesis(j,phrase)-_indtovec[phrase[2]][j]);
-		}
-		return S;
-	}
+    if (c == 2) {
+        return _indtovec[phrase[c]][k]-hypothesis(k, phrase);
+    } else {
+        float S = 0;
+        for (int j=0; j < _n; j++) {
+            S += _theta[(c-(c>2))*_n+k][j]*(hypothesis(j,phrase)-_indtovec[phrase[2]][j]);
+        }
+        return S;
+    }
 }
 
 int FirstModel::getWordInd(const std::string& word) {
