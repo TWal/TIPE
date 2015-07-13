@@ -8,7 +8,7 @@
 
 class FirstModel : public Model {
 	public:
-        FirstModel(int n);
+        FirstModel(int n, float lambda);
 		virtual void train(const std::vector<std::string>& sentence);
 		float hypothesis(int j, const std::vector<int>& phrase);
 		float error(const std::vector<int>& phrase);
@@ -19,6 +19,7 @@ class FirstModel : public Model {
 
 	private:
 		int _n;
+        float _lambda;
 		std::vector<std::vector<float>> _theta;
 		std::vector<std::vector<float>> _indtovec;
 		std::unordered_map<std::string, int> _wordtoind;

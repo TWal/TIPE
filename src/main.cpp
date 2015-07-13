@@ -8,7 +8,7 @@ int main() {
     Text8CorpusReader reader("corpus/text8");
     DummyModel model;
     Trainer trainer(&model, &reader);
-    FirstModel test(10);
+    FirstModel test(10, 1.0);
     std::vector<int> phrase = {
         test.getWordInd("manger"),
         test.getWordInd("du"),

@@ -12,8 +12,9 @@ static float carre(float x) {
 	return x*x;
 }
 
-FirstModel::FirstModel(int n) :
+FirstModel::FirstModel(int n, float lambda) :
     _n(n),
+    _lambda(lambda),
     _theta(4*n, std::vector<float>(n, 0.0)) {
 
     std::mt19937 gen;
@@ -46,13 +47,12 @@ float FirstModel::hypothesis(int j, const std::vector<int>& phrase) {
 float FirstModel::error(const std::vector<int>& phrase) {
 	float S = 0;
 	for (int j = 0; j<_n; j++) {
-		float x = hypothesis(j,phrase) - _indtovec[phrase[2]][j];
-		S += carre(x);
+		S += carre(hypothesis(j,phrase) - _indtovec[phrase[2]][j]);
 		for (int l = 0; l<4*_n; l++) {
-			S += carre(_theta[l][j]);
+			S += _lambda * carre(_theta[l][j]);
 		}
 		for (int i = 0; i<5; i++) {
-			S += carre(_indtovec[phrase[i]][j]);
+			S += _lambda * carre(_indtovec[phrase[i]][j]);
 		}
 	}
 	return S/2;
