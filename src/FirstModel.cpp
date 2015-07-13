@@ -1,5 +1,8 @@
 #include "FirstModel.h"
 #include <random>
+#include <cstdio>
+#include <cfloat>
+#include <cmath>
 
 //Magic, untested values
 static const float RANDOM_MEAN = 0.0;
@@ -89,6 +92,40 @@ int FirstModel::getWordInd(const std::string& word) {
         }
         _indtovec.push_back(vec);
         return id;
+    }
+}
+
+void FirstModel::gradCheck(const std::vector<int>& phrase) {
+    float epsilon = sqrt(FLT_EPSILON);
+    printf("Theta:\n");
+    for(int l = 0; l < 4*_n; ++l) {
+        for(int j = 0; j < _n; ++j) {
+            float theta = _theta[l][j];
+            _theta[l][j] = theta + epsilon;
+            float errpe = error(phrase);
+            _theta[l][j] = theta - epsilon;
+            float errme = error(phrase);
+            _theta[l][j] = theta;
+            float approx = (errpe-errme)/(2*epsilon);
+            float calc = derivTheta(l, j, phrase);
+            printf("\t%f\t%f\t%f\t%f\t%d\t%d\n", calc-approx, calc/approx, calc, approx, l, j);
+        }
+    }
+
+    printf("Words:\n");
+    for(int c = 0; c < 5; ++c) {
+        for(int k = 0; k < _n; ++k) {
+            float word = _indtovec[phrase[c]][k];
+            _indtovec[phrase[c]][k] = word + epsilon;
+            float errpe = error(phrase);
+            _indtovec[phrase[c]][k] = word - epsilon;
+            float errme = error(phrase);
+            _indtovec[phrase[c]][k] = word;
+            float approx = (errpe-errme)/(2*epsilon);
+            float calc = derivWord(c, k, phrase);
+            printf("\t%f\t%f\t%f\t%f\t%d\t%d\n", calc-approx, calc/approx, calc, approx, c, k);
+        }
+        printf("\n");
     }
 }
 

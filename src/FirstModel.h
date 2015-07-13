@@ -15,6 +15,7 @@ class FirstModel : public Model {
 		float derivTheta(int l, int j, const std::vector<int>& phrase);
 		float derivWord(int c, int k, const std::vector<int>& phrase);
         int getWordInd(const std::string& word);
+        void gradCheck(const std::vector<int>& phrase);
 
 	private:
 		int _n;
