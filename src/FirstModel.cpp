@@ -62,18 +62,18 @@ float FirstModel::derivTheta(int l, int j, const std::vector<int>& phrase) {
     int c = l/_n;
     c += (c>=2);
     int k = l%_n;
-    return (hypothesis(j, phrase)-_indtovec[phrase[2]][j])*_indtovec[phrase[c]][k];
+    return (hypothesis(j, phrase)-_indtovec[phrase[2]][j])*_indtovec[phrase[c]][k] + _lambda*_theta[l][j];
 }
 
 float FirstModel::derivWord(int c, int k, const std::vector<int>& phrase) {
     if (c == 2) {
-        return _indtovec[phrase[c]][k]-hypothesis(k, phrase);
+        return _indtovec[phrase[c]][k]-hypothesis(k, phrase) + _lambda*_indtovec[phrase[c]][k];
     } else {
         float S = 0;
         for (int j=0; j < _n; j++) {
             S += _theta[(c-(c>2))*_n+k][j]*(hypothesis(j,phrase)-_indtovec[phrase[2]][j]);
         }
-        return S;
+        return S + _lambda*_indtovec[phrase[c]][k];
     }
 }
 
