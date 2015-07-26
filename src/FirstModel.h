@@ -9,7 +9,7 @@
 class FirstModel : public Model {
     public:
         FirstModel(int n, float lambda);
-        virtual void train(const std::vector<std::string>& sentence);
+        virtual void train(const std::vector<std::string>& sentence, float alpha);
         float hypothesis(int j, const std::vector<int>& phrase);
         float error(const std::vector<int>& phrase);
         float derivTheta(int l, int j, const std::vector<int>& phrase);

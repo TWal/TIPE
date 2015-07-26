@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cfloat>
 #include <cmath>
+#include <algorithm>
 
 //Magic, untested values
 static const float RANDOM_MEAN = 0.0;
@@ -26,7 +27,38 @@ FirstModel::FirstModel(int n, float lambda) :
     }
 }
 
-void FirstModel::train(const std::vector<std::string>& sentence) {
+void FirstModel::train(const std::vector<std::string>& sentence, float alpha) {
+    std::vector<int> indices(sentence.size());
+    std::transform(sentence.begin(),sentence.end(),indices.begin(),[this](const std::string& s) {return this->getWordInd(s);});
+    std::vector<std::vector<float>> dtheta(4*_n,std::vector<float>(_n, 0.0));
+    for(int i = 0; i<4*_n; i++) {
+        for(int j = 0; j<_n; j++) {
+            for(int k = 0; k < sentence.size()-4; k++) {
+                std::vector<int> example(indices.begin()+k,indices.begin()+k+5);
+                dtheta[i][j] += derivTheta(i, j, example);
+            }
+            dtheta[i][j] /= sentence.size()-4;
+        }
+    }
+    std::vector<std::vector<float>> dword(sentence.size(), std::vector<float>(_n, 0.0));
+    for(int i = 0; i < sentence.size()-4; i++) {
+        std::vector<int> example(indices.begin()+i, indices.begin()+i+5);
+        for(int c = 0; c < 5; c++) {
+            for(int k = 0; k<_n; k++) {
+                dword[i+c][k] += derivWord(c, k, example) / (sentence.size()-4);
+            }
+        }
+    }
+    for (int i = 0; i<4*_n; i++) {
+        for (int j = 0; j<_n; j++) {
+            _theta[i][j] += dtheta[i][j]*alpha;
+        }
+    }
+    for (int i = 0; i<sentence.size(); i++) {
+        for (int j = 0; j<_n; j++) {
+            _indtovec[indices[i]][j] += dword[i][j]*alpha;
+        }
+    }
 }
 
 float FirstModel::hypothesis(int j, const std::vector<int>& phrase) {

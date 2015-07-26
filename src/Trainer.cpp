@@ -6,6 +6,6 @@ Trainer::Trainer(Model* model, CorpusReader* corpus) :
 }
 
 void Trainer::train() {
-    _model->train(_corpus->readSentence());
+    _model->train(_corpus->readSentence(), 0.001);
 }
 
