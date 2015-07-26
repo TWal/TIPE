@@ -8,7 +8,6 @@ Text8CorpusReader::~Text8CorpusReader() {
     _file.close();
 }
 
-#include <stdio.h>
 std::vector<std::string> Text8CorpusReader::readSentence() {
     //Suppose we are at the beginning of a word, read 20 words
     std::vector<std::string> result;
