@@ -13,6 +13,13 @@ static float carre(float x) {
     return x*x;
 }
 
+std::vector<int> FirstModel::wordsToIndices(const std::vector<std::string>& sentence) {
+    std::vector<int> indices(sentence.size());
+    std::transform(sentence.begin(),sentence.end(),indices.begin(),[this](const std::string& s) {return this->getWordInd(s);});
+    return indices;
+}
+
+
 FirstModel::FirstModel(int n, float lambda) :
     _n(n),
     _lambda(lambda),
@@ -28,9 +35,7 @@ FirstModel::FirstModel(int n, float lambda) :
 }
 
 void FirstModel::train(const std::vector<std::string>& sentence, float alpha) {
-    std::vector<int> indices(sentence.size());
-    std::transform(sentence.begin(),sentence.end(),indices.begin(),[this](const std::string& s) {return this->getWordInd(s);});
-
+    std::vector<int> indices = wordsToIndices(sentence);
     std::vector<std::vector<float>> dtheta(4*_n,std::vector<float>(_n, 0.0));
     std::vector<std::vector<float>> dword(sentence.size(), std::vector<float>(_n, 0.0));
     for(int i = 0; i<4*_n; i++) {
@@ -57,9 +62,7 @@ void FirstModel::train(const std::vector<std::string>& sentence, float alpha) {
 }
 
 float FirstModel::error(const std::vector<std::string>& sentence) {
-    std::vector<int> indices(sentence.size());
-    std::transform(sentence.begin(),sentence.end(),indices.begin(),[this](const std::string& s) {return this->getWordInd(s);});
-    return error(indices);
+    return error(wordsToIndices(sentence));
 }
 
 int FirstModel::vocabSize() {

@@ -18,6 +18,7 @@ class FirstModel : public Model {
         float derivTheta(int l, int j, const std::vector<int>& sentence);
         float derivWord(int i, int k, const std::vector<int>& sentence);
         int getWordInd(const std::string& word);
+        std::vector<int> wordsToIndices(const std::vector<std::string>& sentence);
         void gradCheck(const std::vector<int>& phrase);
 
         //Functions working on a single example (5 words) without regularization
