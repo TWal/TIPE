@@ -13,6 +13,12 @@ std::vector<std::string> Text8CorpusReader::readSentence() {
     std::vector<std::string> result;
     std::string current;
     for(int i = 0; i < 20; ++i) {
+        //If we are at the end of the file, start again
+        if(_file.eof()) {
+            _file.clear();
+            _file.seekg(0);
+            return readSentence();
+        }
         std::getline(_file, current, ' ');
         // "" is not a word
         if(!current.empty()) {
@@ -21,6 +27,7 @@ std::vector<std::string> Text8CorpusReader::readSentence() {
             --i;
         }
     }
+
     return result;
 }
 
