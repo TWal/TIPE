@@ -30,33 +30,28 @@ FirstModel::FirstModel(int n, float lambda) :
 void FirstModel::train(const std::vector<std::string>& sentence, float alpha) {
     std::vector<int> indices(sentence.size());
     std::transform(sentence.begin(),sentence.end(),indices.begin(),[this](const std::string& s) {return this->getWordInd(s);});
+
     std::vector<std::vector<float>> dtheta(4*_n,std::vector<float>(_n, 0.0));
+    std::vector<std::vector<float>> dword(sentence.size(), std::vector<float>(_n, 0.0));
     for(int i = 0; i<4*_n; i++) {
         for(int j = 0; j<_n; j++) {
-            for(int k = 0; k < sentence.size()-4; k++) {
-                std::vector<int> example(indices.begin()+k,indices.begin()+k+5);
-                dtheta[i][j] += derivTheta(i, j, example);
-            }
-            dtheta[i][j] /= sentence.size()-4;
+            dtheta[i][j] = derivTheta(i, j, indices);
         }
     }
-    std::vector<std::vector<float>> dword(sentence.size(), std::vector<float>(_n, 0.0));
     for(int i = 0; i < sentence.size()-4; i++) {
-        std::vector<int> example(indices.begin()+i, indices.begin()+i+5);
-        for(int c = 0; c < 5; c++) {
-            for(int k = 0; k<_n; k++) {
-                dword[i+c][k] += derivWord(c, k, example) / (sentence.size()-4);
-            }
+        for(int k = 0; k<_n; k++) {
+            dword[i][k] = derivWord(i, k, indices);
         }
     }
+
     for (int i = 0; i<4*_n; i++) {
         for (int j = 0; j<_n; j++) {
-            _theta[i][j] += dtheta[i][j]*alpha;
+            _theta[i][j] -= dtheta[i][j]*alpha;
         }
     }
     for (int i = 0; i<sentence.size(); i++) {
         for (int j = 0; j<_n; j++) {
-            _indtovec[indices[i]][j] += dword[i][j]*alpha;
+            _indtovec[indices[i]][j] -= dword[i][j]*alpha;
         }
     }
 }
@@ -76,37 +71,44 @@ float FirstModel::hypothesis(int j, const std::vector<int>& phrase) {
     return S;
 }
 
-float FirstModel::error(const std::vector<int>& phrase) {
+float FirstModel::error(const std::vector<int>& sentence) {
     float S = 0;
-    for (int j = 0; j<_n; j++) {
-        S += carre(hypothesis(j,phrase) - _indtovec[phrase[2]][j]);
+    for(int i = 0; i < sentence.size()-4; ++i) {
+        std::vector<int> example(sentence.begin()+i, sentence.begin()+i+5);
+        S += errorEx(example);
+    }
+    S /= sentence.size()-4;
+
+    //Regularization
+    for(int j = 0; j < _n; ++j) {
         for (int l = 0; l<4*_n; l++) {
-            S += _lambda * carre(_theta[l][j]);
+            S += _lambda/2 * carre(_theta[l][j]);
         }
-        for (int i = 0; i<5; i++) {
-            S += _lambda * carre(_indtovec[phrase[i]][j]);
+        for (int i = 0; i<sentence.size(); i++) {
+            S += _lambda/2 * carre(_indtovec[sentence[i]][j]);
         }
     }
-    return S/2;
+    return S;
 }
 
-float FirstModel::derivTheta(int l, int j, const std::vector<int>& phrase) {
-    int c = l/_n;
-    c += (c>=2);
-    int k = l%_n;
-    return (hypothesis(j, phrase)-_indtovec[phrase[2]][j])*_indtovec[phrase[c]][k] + _lambda*_theta[l][j];
-}
-
-float FirstModel::derivWord(int c, int k, const std::vector<int>& phrase) {
-    if (c == 2) {
-        return _indtovec[phrase[c]][k]-hypothesis(k, phrase) + _lambda*_indtovec[phrase[c]][k];
-    } else {
-        float S = 0;
-        for (int j=0; j < _n; j++) {
-            S += _theta[(c-(c>2))*_n+k][j]*(hypothesis(j,phrase)-_indtovec[phrase[2]][j]);
-        }
-        return S + _lambda*_indtovec[phrase[c]][k];
+float FirstModel::derivTheta(int l, int j, const std::vector<int>& sentence) {
+    float res = 0;
+    for(int i = 0; i < sentence.size()-4; ++i) {
+        std::vector<int> example(sentence.begin()+i, sentence.begin()+i+5);
+        res += derivThetaEx(l, j, example);
     }
+    return res/(sentence.size()-4)+ _lambda*_theta[l][j];
+}
+
+float FirstModel::derivWord(int i, int k, const std::vector<int>& sentence) {
+    float res = 0;
+    for(int c = 0; c < 5; c++) {
+        if(i-c >= 0 && i-c+5 <= sentence.size()) {
+            std::vector<int> example(sentence.begin()+i-c, sentence.begin()+i-c+5);
+            res += derivWordEx(c, k, example);
+        }
+    }
+    return res/(sentence.size()-4) + _lambda*_indtovec[sentence[i]][k];
 }
 
 int FirstModel::getWordInd(const std::string& word) {
@@ -127,19 +129,81 @@ int FirstModel::getWordInd(const std::string& word) {
     }
 }
 
-void FirstModel::gradCheck(const std::vector<int>& phrase) {
+void FirstModel::gradCheck(const std::vector<int>& sentence) {
     float epsilon = sqrt(FLT_EPSILON);
     printf("Theta:\n");
     for(int l = 0; l < 4*_n; ++l) {
         for(int j = 0; j < _n; ++j) {
             float theta = _theta[l][j];
             _theta[l][j] = theta + epsilon;
-            float errpe = error(phrase);
+            float errpe = error(sentence);
             _theta[l][j] = theta - epsilon;
-            float errme = error(phrase);
+            float errme = error(sentence);
             _theta[l][j] = theta;
             float approx = (errpe-errme)/(2*epsilon);
-            float calc = derivTheta(l, j, phrase);
+            float calc = derivTheta(l, j, sentence);
+            printf("\t%f\t%f\t%f\t%f\t%d\t%d\n", calc-approx, calc/approx, calc, approx, l, j);
+        }
+    }
+
+    printf("Words:\n");
+    for(int c = 0; c < sentence.size(); ++c) {
+        for(int k = 0; k < _n; ++k) {
+            float word = _indtovec[sentence[c]][k];
+            _indtovec[sentence[c]][k] = word + epsilon;
+            float errpe = error(sentence);
+            _indtovec[sentence[c]][k] = word - epsilon;
+            float errme = error(sentence);
+            _indtovec[sentence[c]][k] = word;
+            float approx = (errpe-errme)/(2*epsilon);
+            float calc = derivWord(c, k, sentence);
+            printf("\t%f\t%f\t%f\t%f\t%d\t%d\n", calc-approx, calc/approx, calc, approx, c, k);
+        }
+        printf("\n");
+    }
+}
+
+float FirstModel::errorEx(const std::vector<int>& example) {
+    float S = 0;
+    for (int j = 0; j<_n; j++) {
+        S += carre(hypothesis(j,example) - _indtovec[example[2]][j]);
+    }
+    return S/2;
+}
+
+float FirstModel::derivThetaEx(int l, int j, const std::vector<int>& example) {
+    int c = l/_n;
+    c += (c>=2);
+    int k = l%_n;
+    return (hypothesis(j, example)-_indtovec[example[2]][j])*_indtovec[example[c]][k];
+}
+
+float FirstModel::derivWordEx(int c, int k, const std::vector<int>& example) {
+    if (c == 2) {
+        return _indtovec[example[c]][k]-hypothesis(k, example);
+    } else {
+        float S = 0;
+        for (int j=0; j < _n; j++) {
+            S += _theta[(c-(c>2))*_n+k][j]*(hypothesis(j,example)-_indtovec[example[2]][j]);
+        }
+        return S;
+    }
+}
+
+
+void FirstModel::gradCheckEx(const std::vector<int>& example) {
+    float epsilon = sqrt(FLT_EPSILON);
+    printf("Theta:\n");
+    for(int l = 0; l < 4*_n; ++l) {
+        for(int j = 0; j < _n; ++j) {
+            float theta = _theta[l][j];
+            _theta[l][j] = theta + epsilon;
+            float errpe = errorEx(example);
+            _theta[l][j] = theta - epsilon;
+            float errme = errorEx(example);
+            _theta[l][j] = theta;
+            float approx = (errpe-errme)/(2*epsilon);
+            float calc = derivThetaEx(l, j, example);
             printf("\t%f\t%f\t%f\t%f\t%d\t%d\n", calc-approx, calc/approx, calc, approx, l, j);
         }
     }
@@ -147,14 +211,14 @@ void FirstModel::gradCheck(const std::vector<int>& phrase) {
     printf("Words:\n");
     for(int c = 0; c < 5; ++c) {
         for(int k = 0; k < _n; ++k) {
-            float word = _indtovec[phrase[c]][k];
-            _indtovec[phrase[c]][k] = word + epsilon;
-            float errpe = error(phrase);
-            _indtovec[phrase[c]][k] = word - epsilon;
-            float errme = error(phrase);
-            _indtovec[phrase[c]][k] = word;
+            float word = _indtovec[example[c]][k];
+            _indtovec[example[c]][k] = word + epsilon;
+            float errpe = errorEx(example);
+            _indtovec[example[c]][k] = word - epsilon;
+            float errme = errorEx(example);
+            _indtovec[example[c]][k] = word;
             float approx = (errpe-errme)/(2*epsilon);
-            float calc = derivWord(c, k, phrase);
+            float calc = derivWordEx(c, k, example);
             printf("\t%f\t%f\t%f\t%f\t%d\t%d\n", calc-approx, calc/approx, calc, approx, c, k);
         }
         printf("\n");

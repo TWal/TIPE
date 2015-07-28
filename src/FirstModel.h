@@ -11,11 +11,17 @@ class FirstModel : public Model {
         FirstModel(int n, float lambda);
         virtual void train(const std::vector<std::string>& sentence, float alpha);
         float hypothesis(int j, const std::vector<int>& phrase);
-        float error(const std::vector<int>& phrase);
-        float derivTheta(int l, int j, const std::vector<int>& phrase);
-        float derivWord(int c, int k, const std::vector<int>& phrase);
+        float error(const std::vector<int>& sentence);
+        float derivTheta(int l, int j, const std::vector<int>& sentence);
+        float derivWord(int i, int k, const std::vector<int>& sentence);
         int getWordInd(const std::string& word);
         void gradCheck(const std::vector<int>& phrase);
+
+        //Functions working on a single example (5 words) without regularization
+        float errorEx(const std::vector<int>& example);
+        float derivThetaEx(int l, int j, const std::vector<int>& example);
+        float derivWordEx(int c, int k, const std::vector<int>& example);
+        void gradCheckEx(const std::vector<int>& example);
 
     private:
         int _n;

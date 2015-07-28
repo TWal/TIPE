@@ -14,7 +14,15 @@ int main() {
         test.getWordInd("du"),
         test.getWordInd("chocolat"),
         test.getWordInd("noir"),
-        test.getWordInd("miam")
+        test.getWordInd("miam"),
+        test.getWordInd("c'est"),
+        test.getWordInd("tres"),
+        test.getWordInd("tres2"),
+        test.getWordInd("tres3"),
+        test.getWordInd("tres4"),
+        test.getWordInd("tres5"),
+        test.getWordInd("tres6"),
+        test.getWordInd("bon")
     };
 
     test.gradCheck(phrase);
