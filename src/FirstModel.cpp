@@ -56,6 +56,17 @@ void FirstModel::train(const std::vector<std::string>& sentence, float alpha) {
     }
 }
 
+float FirstModel::error(const std::vector<std::string>& sentence) {
+    std::vector<int> indices(sentence.size());
+    std::transform(sentence.begin(),sentence.end(),indices.begin(),[this](const std::string& s) {return this->getWordInd(s);});
+    return error(indices);
+}
+
+int FirstModel::vocabSize() {
+    return _indtovec.size();
+}
+
+
 float FirstModel::hypothesis(int j, const std::vector<int>& phrase) {
     float S = 0;
     for (int l = 0; l < 4*_n; l++) {

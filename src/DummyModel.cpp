@@ -9,3 +9,11 @@ void DummyModel::train(const std::vector<std::string>& sentence, float alpha) {
     printf("\n");
 }
 
+float DummyModel::error(const std::vector<std::string>& sentence) {
+    return -1;
+}
+
+int DummyModel::vocabSize() {
+    return -1;
+}
+
