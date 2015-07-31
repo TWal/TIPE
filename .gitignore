@@ -1,7 +1,7 @@
 CMakeCache.txt
 CMakeFiles
 Makefile
-*.cmake
+cmake_install.cmake
 bin
 compile_commands.json
 corpus
