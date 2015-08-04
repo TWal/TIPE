@@ -13,12 +13,6 @@ static float carre(float x) {
     return x*x;
 }
 
-std::vector<int> FirstModel::wordsToIndices(const std::vector<std::string>& sentence) {
-    std::vector<int> indices(sentence.size());
-    std::transform(sentence.begin(),sentence.end(),indices.begin(),[this](const std::string& s) {return this->getWordInd(s);});
-    return indices;
-}
-
 
 FirstModel::FirstModel(int n, float lambda) :
     _n(n),
@@ -59,13 +53,13 @@ int FirstModel::vocabSize() {
 }
 
 
-Eigen::VectorXf FirstModel::hypothesis(const std::vector<int>& phrase) {
+Eigen::VectorXf FirstModel::hypothesis(const std::vector<int>& phrase) const {
     Eigen::VectorXf words(4*_n);
     words << _indtovec[phrase[0]], _indtovec[phrase[1]], _indtovec[phrase[3]], _indtovec[phrase[4]];
     return _theta.transpose()*words;
 }
 
-float FirstModel::error(const std::vector<int>& sentence) {
+float FirstModel::error(const std::vector<int>& sentence) const {
     float S = 0;
     for(int i = 0; i < sentence.size()-4; ++i) {
         std::vector<int> example(sentence.begin()+i, sentence.begin()+i+5);
@@ -85,7 +79,7 @@ float FirstModel::error(const std::vector<int>& sentence) {
     return S;
 }
 
-Eigen::VectorXf FirstModel::derivTheta(int l, const std::vector<int>& sentence) {
+Eigen::VectorXf FirstModel::derivTheta(int l, const std::vector<int>& sentence) const {
     Eigen::VectorXf res = Eigen::VectorXf::Zero(_n);
     for(int i = 0; i < sentence.size()-4; ++i) {
         std::vector<int> example(sentence.begin()+i, sentence.begin()+i+5);
@@ -94,7 +88,7 @@ Eigen::VectorXf FirstModel::derivTheta(int l, const std::vector<int>& sentence) 
     return res/(sentence.size()-4)+ _lambda*_theta.row(l).transpose();
 }
 
-Eigen::VectorXf FirstModel::derivWord(int i, const std::vector<int>& sentence) {
+Eigen::VectorXf FirstModel::derivWord(int i, const std::vector<int>& sentence) const {
     Eigen::VectorXf res = Eigen::VectorXf::Zero(_n);
     for(int c = 0; c < 5; c++) {
         if(i-c >= 0 && i-c+5 <= sentence.size()) {
@@ -122,6 +116,13 @@ int FirstModel::getWordInd(const std::string& word) {
         return id;
     }
 }
+
+std::vector<int> FirstModel::wordsToIndices(const std::vector<std::string>& sentence) {
+    std::vector<int> indices(sentence.size());
+    std::transform(sentence.begin(),sentence.end(),indices.begin(),[this](const std::string& s) {return this->getWordInd(s);});
+    return indices;
+}
+
 
 void FirstModel::gradCheck(const std::vector<int>& sentence) {
     float epsilon = sqrt(FLT_EPSILON);
@@ -157,7 +158,7 @@ void FirstModel::gradCheck(const std::vector<int>& sentence) {
     }
 }
 
-float FirstModel::errorEx(const std::vector<int>& example) {
+float FirstModel::errorEx(const std::vector<int>& example) const {
     float S = 0;
     for (int j = 0; j<_n; j++) {
         S += carre(hypothesis(example)(j) - _indtovec[example[2]][j]);
@@ -165,14 +166,14 @@ float FirstModel::errorEx(const std::vector<int>& example) {
     return S/2;
 }
 
-Eigen::VectorXf FirstModel::derivThetaEx(int l, const std::vector<int>& example) {
+Eigen::VectorXf FirstModel::derivThetaEx(int l, const std::vector<int>& example) const {
     int c = l/_n;
     c += (c>=2);
     int k = l%_n;
     return (hypothesis(example) -_indtovec[example[2]])*_indtovec[example[c]][k];
 }
 
-Eigen::VectorXf FirstModel::derivWordEx(int c, const std::vector<int>& example) {
+Eigen::VectorXf FirstModel::derivWordEx(int c, const std::vector<int>& example) const {
     if (c == 2) {
         return _indtovec[example[c]]-hypothesis(example);
     } else {
