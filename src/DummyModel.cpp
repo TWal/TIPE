@@ -17,3 +17,9 @@ int DummyModel::vocabSize() {
     return -1;
 }
 
+void DummyModel::save(const std::string& file) {
+}
+
+void DummyModel::load(const std::string& file) {
+}
+

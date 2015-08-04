@@ -13,6 +13,7 @@ set(${PROJECT_NAME}_SOURCES
     src/DummyModel.cpp
     src/FirstModel.cpp
     src/Trainer.cpp
+    src/Serializer.cpp
 )
 
 find_package(Eigen REQUIRED)

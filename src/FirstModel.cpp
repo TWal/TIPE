@@ -1,4 +1,5 @@
 #include "FirstModel.h"
+#include "Serializer.h"
 #include <random>
 #include <cstdio>
 #include <cfloat>
@@ -50,6 +51,41 @@ float FirstModel::error(const std::vector<std::string>& sentence) {
 
 int FirstModel::vocabSize() {
     return _indtovec.size();
+}
+
+void FirstModel::save(const std::string& file) {
+    Serializer s;
+    s.initWrite(file);
+    s.writeInt(_n);
+    s.writeFloat(_lambda);
+    s.writeMat(_theta);
+    s.writeInt(_indtovec.size());
+    for(const Eigen::VectorXf& v : _indtovec) {
+        s.writeVec(v);
+    }
+    s.writeInt(_wordtoind.size());
+    for(const std::pair<std::string, int>& p : _wordtoind) {
+        s.writeString(p.first);
+        s.writeInt(p.second);
+    }
+}
+
+void FirstModel::load(const std::string& file) {
+    Serializer s;
+    s.initRead(file);
+    _n = s.readInt();
+    _lambda = s.readFloat();
+    _theta = s.readMat();
+    int size = s.readInt();
+    for(int i = 0; i < size; ++i) {
+        _indtovec.push_back(s.readVec());
+    }
+    size = s.readInt();
+    for(int i = 0; i < size; ++i) {
+        std::string word = s.readString();
+        int ind = s.readInt();
+        _wordtoind.emplace(word, ind);
+    }
 }
 
 
