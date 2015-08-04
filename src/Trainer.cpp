@@ -22,3 +22,14 @@ void Trainer::test(int n) {
     }
 }
 
+void Trainer::infiniteTest(const std::string& filename) {
+    while(true) {
+        for(int i = 0; i < 10000; ++i) {
+            train();
+        }
+        float e = _model->error(_corpus->readSentence());
+        printf("error: %f\twords: %d\n", e, _model->vocabSize());
+        _model->save(filename);
+    }
+}
+

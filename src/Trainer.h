@@ -9,6 +9,8 @@ class Trainer {
         Trainer(Model* model, CorpusReader* corpus);
         void train();
         void test(int n);
+        void infiniteTest(const std::string& filename);
+
     private:
         Model* _model;
         CorpusReader* _corpus;
