@@ -8,7 +8,7 @@
 
 //Magic, untested values
 static const float RANDOM_MEAN = 0.0;
-static const float RANDOM_STDDEV = 3.0;
+static const float RANDOM_STDDEV = 10.0;
 
 static float carre(float x) {
     return x*x;
@@ -20,11 +20,10 @@ FirstModel::FirstModel(int n, float lambda) :
     _lambda(lambda),
     _theta(Eigen::MatrixXf::Zero(4*_n, _n)) {
 
-    std::mt19937 gen;
     std::normal_distribution<float> dist(RANDOM_MEAN, RANDOM_STDDEV);
     for(int i = 0; i < 4*n; ++i) {
         for(int j = 0; j < n; ++j) {
-            _theta(i, j) = dist(gen);
+            _theta(i, j) = dist(_gen);
         }
     }
 }
@@ -143,10 +142,9 @@ int FirstModel::getWordInd(const std::string& word) {
         int id = _indtovec.size();
         _wordtoind.emplace(word, id);
         Eigen::VectorXf vec(_n);
-        std::mt19937 gen;
         std::normal_distribution<float> dist(RANDOM_MEAN, RANDOM_STDDEV);
         for(int i = 0; i < _n; ++i) {
-            vec(i) = dist(gen);
+            vec(i) = dist(_gen);
         }
         _indtovec.push_back(vec);
         return id;

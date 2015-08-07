@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <Eigen/Dense>
+#include <random>
 #include "Model.h"
 
 class FirstModel : public Model {
@@ -36,6 +37,7 @@ class FirstModel : public Model {
         Eigen::MatrixXf _theta;
         std::vector<Eigen::VectorXf> _indtovec;
         std::unordered_map<std::string, int> _wordtoind;
+        std::mt19937 _gen;
 };
 
 #endif
