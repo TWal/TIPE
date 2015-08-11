@@ -192,6 +192,19 @@ void FirstModel::gradCheck(const std::vector<int>& sentence) {
     }
 }
 
+std::string FirstModel::plusProche(Eigen::VectorXf vect, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance) {
+    float min = distance(vect, _indtovec[_wordtoind.begin()->second]);
+    std::string str = _wordtoind.begin()->first;
+    for(auto i : _wordtoind) {
+        float dist = distance (vect, _indtovec[i.second]);
+        if (dist < min) {
+            min = dist;
+            str = i.first;
+        }
+    }
+    return str;
+}
+
 float FirstModel::errorEx(const std::vector<int>& example) const {
     float S = 0;
     for (int j = 0; j<_n; j++) {

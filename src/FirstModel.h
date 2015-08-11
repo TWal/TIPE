@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 #include <unordered_map>
 #include <Eigen/Dense>
 #include <random>
@@ -24,6 +25,7 @@ class FirstModel : public Model {
         int getWordInd(const std::string& word);
         std::vector<int> wordsToIndices(const std::vector<std::string>& sentence);
         void gradCheck(const std::vector<int>& phrase);
+        std::string plusProche(Eigen::VectorXf vect, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance);
 
         //Functions working on a single example (5 words) without regularization
         float errorEx(const std::vector<int>& example) const;

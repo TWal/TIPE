@@ -14,6 +14,7 @@ set(${PROJECT_NAME}_SOURCES
     src/FirstModel.cpp
     src/Trainer.cpp
     src/Serializer.cpp
+    src/Distances.cpp
 )
 
 find_package(Eigen REQUIRED)
