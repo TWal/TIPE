@@ -13,10 +13,11 @@ class FirstModel : public Model {
     public:
         FirstModel(int n, float lambda);
         virtual void train(const std::vector<std::string>& sentence, float alpha);
-        virtual float error(const std::vector<std::string>& sentence);
-        virtual int vocabSize();
+        float error(const std::vector<std::string>& sentence);
+        virtual int sentenceSize();
         virtual void save(const std::string& file);
         virtual void load(const std::string& file);
+        virtual void displayState(const std::vector<std::string>& sentence);
 
         Eigen::VectorXf hypothesis(const std::vector<int>& phrase) const;
         float error(const std::vector<int>& sentence) const;

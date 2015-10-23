@@ -9,11 +9,7 @@ void DummyModel::train(const std::vector<std::string>& sentence, float alpha) {
     printf("\n");
 }
 
-float DummyModel::error(const std::vector<std::string>& sentence) {
-    return -1;
-}
-
-int DummyModel::vocabSize() {
+int DummyModel::sentenceSize() {
     return -1;
 }
 
@@ -21,5 +17,9 @@ void DummyModel::save(const std::string& file) {
 }
 
 void DummyModel::load(const std::string& file) {
+}
+
+void DummyModel::displayState(const std::vector<std::string>& sentence) {
+    printf("Dummy::displayState called\n");
 }
 

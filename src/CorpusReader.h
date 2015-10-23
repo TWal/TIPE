@@ -6,7 +6,7 @@
 
 class CorpusReader {
     public:
-        virtual std::vector<std::string> readSentence() = 0;
+        virtual std::vector<std::string> readSentence(int n) = 0;
 };
 
 #endif

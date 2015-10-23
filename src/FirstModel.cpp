@@ -48,8 +48,8 @@ float FirstModel::error(const std::vector<std::string>& sentence) {
     return error(wordsToIndices(sentence));
 }
 
-int FirstModel::vocabSize() {
-    return _indtovec.size();
+int FirstModel::sentenceSize() {
+    return 20;
 }
 
 void FirstModel::save(const std::string& file) {
@@ -87,6 +87,9 @@ void FirstModel::load(const std::string& file) {
     }
 }
 
+void FirstModel::displayState(const std::vector<std::string>& sentence) {
+        printf("error: %f\twords: %d\n", error(sentence), _indtovec.size());
+}
 
 Eigen::VectorXf FirstModel::hypothesis(const std::vector<int>& phrase) const {
     Eigen::VectorXf words(4*_n);
@@ -156,7 +159,6 @@ std::vector<int> FirstModel::wordsToIndices(const std::vector<std::string>& sent
     std::transform(sentence.begin(),sentence.end(),indices.begin(),[this](const std::string& s) {return this->getWordInd(s);});
     return indices;
 }
-
 
 void FirstModel::gradCheck(const std::vector<int>& sentence) {
     float epsilon = sqrt(FLT_EPSILON);

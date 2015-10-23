@@ -8,10 +8,10 @@ RandomText8CorpusReader::RandomText8CorpusReader(const std::string& filename) :
     _file.seekg(0);
 }
 
-std::vector<std::string> RandomText8CorpusReader::readSentence() {
+std::vector<std::string> RandomText8CorpusReader::readSentence(int n) {
     _file.seekg(_dist(_gen));
     std::string nothing;
     std::getline(_file, nothing, ' ');
-    return Text8CorpusReader::readSentence();
+    return Text8CorpusReader::readSentence(n);
 }
 
