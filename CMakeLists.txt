@@ -12,6 +12,7 @@ set(${PROJECT_NAME}_SOURCES
     src/RandomText8CorpusReader.cpp
     src/DummyModel.cpp
     src/FirstModel.cpp
+    src/SecondModel.cpp
     src/Trainer.cpp
     src/Serializer.cpp
     src/Distances.cpp
