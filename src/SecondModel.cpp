@@ -29,7 +29,24 @@ SecondModel::SecondModel(int n, int v) :
 }
 
 void SecondModel::train(const std::vector<std::string>& sentence, float alpha) {
-    //TODO
+    std::array<int, SecondModel::CTX_SIZE> ctx;
+    int answer;
+    sentenceToContext(sentence, ctx, answer);
+    Eigen::VectorXf dW2 = derivW2 (ctx, answer, true);
+    std::vector<int> wrong = negSample (answer);
+    std::vector<Eigen::VectorXf> dwrongW2;
+    Eigen::VectorXf dW1 = derivW1 (ctx, answer, true);
+    for(int i = 0; i < wrong.size(); i++) {
+        dwrongW2.push_back(derivW2(ctx, wrong[i], false));
+        dW1 += derivW1 (ctx, wrong[i], false);
+    }
+    _w2[answer] -= alpha*dW2;
+    for(int i = 0; i < wrong.size(); i++) {
+        _w2[wrong[i]] -= alpha*dwrongW2[i];
+    }
+    for(int i = 0; i < SecondModel::CTX_SIZE; i++) {
+        _w1[ctx[i]] -= alpha*dW1;
+    }
 }
 
 int SecondModel::sentenceSize() {

@@ -30,6 +30,7 @@ class SecondModel : public Model {
         void sentenceToContext(const std::vector<std::string>& sentence, std::array<int, SecondModel::CTX_SIZE>& ctx, int& answer);
         std::vector<int> negSample(int word);
         int getWordInd(const std::string& word);
+
     private:
         int _n;
         int _v;
