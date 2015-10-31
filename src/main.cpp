@@ -6,7 +6,7 @@
 
 int main() {
     Text8CorpusReader reader("corpus/text8");
-    SecondModel model(25, 253855);
+    SecondModel model(100, 253854);
     Trainer trainer(&model, &reader);
     trainer.infiniteTest("result.bin");
     return 0;

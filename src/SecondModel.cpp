@@ -1,5 +1,6 @@
 #include "SecondModel.h"
 
+#include "Serializer.h"
 #include <cmath>
 #include <cfloat>
 
@@ -54,11 +55,43 @@ int SecondModel::sentenceSize() {
 }
 
 void SecondModel::save(const std::string& file) {
-    //TODO
+    Serializer s;
+    s.initWrite(file);
+    s.writeInt(_n);
+    s.writeInt(_v);
+    for(const Eigen::VectorXf& v : _w1) {
+        s.writeVec(v);
+    }
+    for(const Eigen::VectorXf& v : _w2) {
+        s.writeVec(v);
+    }
+    s.writeInt(_wordtoind.size());
+    for(const std::pair<std::string, int>& p : _wordtoind) {
+        s.writeString(p.first);
+        s.writeInt(p.second);
+    }
 }
 
 void SecondModel::load(const std::string& file) {
-    //TODO
+    Serializer s;
+    s.initRead(file);
+    _n = s.readInt();
+    _v = s.readInt();
+    _w1.clear();
+    _w2.clear();
+    for(int i = 0; i < _v; ++i) {
+        _w1.push_back(s.readVec());
+    }
+    for(int i = 0; i < _v; ++i) {
+        _w2.push_back(s.readVec());
+    }
+    _wordtoind.clear();
+    int size = s.readInt();
+    for(int i = 0; i < size; ++i) {
+        std::string word = s.readString();
+        int ind = s.readInt();
+        _wordtoind.emplace(word, ind);
+    }
 }
 
 void SecondModel::displayState(const std::vector<std::string>& sentence) {
@@ -95,7 +128,7 @@ float SecondModel::errorNegSample(const std::array<int, SecondModel::CTX_SIZE>& 
     for(int i : sample) {
         result += error(ctx, i, false);
     }
-    return result/(sample.size()+1);
+    return result;
 }
 
 float SecondModel::errorSoftmax(const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer) {

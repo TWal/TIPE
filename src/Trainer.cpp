@@ -9,13 +9,13 @@ Trainer::Trainer(Model* model, CorpusReader* corpus) :
 }
 
 void Trainer::train() {
-    _model->train(_corpus->readSentence(_model->sentenceSize()), 0.001);
+    _model->train(_corpus->readSentence(_model->sentenceSize()), 0.025);
 }
 
 void Trainer::test(int n) {
     for (int i = 0; i <= n; i++) {
         train();
-        if (i%1000 == 0) {
+        if (i%100000 == 0) {
             _model->displayState(_corpus->readSentence(_model->sentenceSize()));
         }
     }
@@ -23,7 +23,7 @@ void Trainer::test(int n) {
 
 void Trainer::infiniteTest(const std::string& filename) {
     while(true) {
-        for(int i = 0; i < 10000; ++i) {
+        for(int i = 0; i < 100000; ++i) {
             train();
         }
         _model->displayState(_corpus->readSentence(_model->sentenceSize()));
