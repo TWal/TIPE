@@ -8,7 +8,9 @@ class Text8CorpusReader : public CorpusReader {
     public:
         Text8CorpusReader(const std::string& filename);
         ~Text8CorpusReader();
-        virtual std::vector<std::string> readSentence(int n);
+        virtual std::string readWord();
+        virtual bool eof();
+        virtual void startOver();
     protected:
         std::ifstream _file;
 };

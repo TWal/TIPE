@@ -8,26 +8,17 @@ Text8CorpusReader::~Text8CorpusReader() {
     _file.close();
 }
 
-std::vector<std::string> Text8CorpusReader::readSentence(int n) {
-    //Suppose we are at the beginning of a word, read n words
-    std::vector<std::string> result;
-    std::string current;
-    for(int i = 0; i < n; ++i) {
-        //If we are at the end of the file, start again
-        if(_file.eof()) {
-            _file.clear();
-            _file.seekg(0);
-            return readSentence(n);
-        }
-        std::getline(_file, current, ' ');
-        // "" is not a word
-        if(!current.empty()) {
-            result.push_back(current);
-        } else {
-            --i;
-        }
-    }
-
+std::string Text8CorpusReader::readWord() {
+    std::string result;
+    std::getline(_file, result, ' ');
     return result;
 }
 
+bool Text8CorpusReader::eof() {
+    return _file.eof();
+}
+
+void Text8CorpusReader::startOver() {
+    _file.clear();
+    _file.seekg(0);
+}

@@ -10,7 +10,7 @@ void DummyModel::train(const std::vector<std::string>& sentence, float alpha) {
 }
 
 int DummyModel::sentenceSize() {
-    return -1;
+    return 5;
 }
 
 void DummyModel::save(const std::string& file) {
