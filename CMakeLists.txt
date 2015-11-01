@@ -8,9 +8,8 @@ SET(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
 
 set(${PROJECT_NAME}_SOURCES
     src/main.cpp
-    src/CorpusReader.cpp
+    src/ExampleMaker.cpp
     src/Text8CorpusReader.cpp
-    src/RandomText8CorpusReader.cpp
     src/DummyModel.cpp
     src/FirstModel.cpp
     src/SecondModel.cpp

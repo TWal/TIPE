@@ -2,18 +2,18 @@
 #define TRAINER_H
 
 #include "Model.h"
-#include "CorpusReader.h"
+#include "ExampleMaker.h"
 
 class Trainer {
     public:
-        Trainer(Model* model, CorpusReader* corpus);
+        Trainer(Model* model, ExampleMaker* ex);
         void train();
         void test(int n);
         void infiniteTest(const std::string& filename);
 
     private:
         Model* _model;
-        CorpusReader* _corpus;
+        ExampleMaker* _ex;
 };
 
 #endif

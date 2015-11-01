@@ -1,22 +1,19 @@
 #include "Trainer.h"
-#include "FirstModel.h"
-#include "CorpusReader.h"
-#include <algorithm>
 
-Trainer::Trainer(Model* model, CorpusReader* corpus) :
+Trainer::Trainer(Model* model, ExampleMaker* ex) :
     _model(model),
-    _corpus(corpus) {
+    _ex(ex) {
 }
 
 void Trainer::train() {
-    _model->train(_corpus->readSentence(_model->sentenceSize()), 0.025);
+    _model->train(_ex->getExample(_model->sentenceSize()), 0.025);
 }
 
 void Trainer::test(int n) {
     for (int i = 0; i <= n; i++) {
         train();
         if (i%100000 == 0) {
-            _model->displayState(_corpus->readSentence(_model->sentenceSize()));
+            _model->displayState(_ex->getExample(_model->sentenceSize()));
         }
     }
 }
@@ -26,7 +23,7 @@ void Trainer::infiniteTest(const std::string& filename) {
         for(int i = 0; i < 100000; ++i) {
             train();
         }
-        _model->displayState(_corpus->readSentence(_model->sentenceSize()));
+        _model->displayState(_ex->getExample(_model->sentenceSize()));
         _model->save(filename);
     }
 }

@@ -2,6 +2,9 @@
 
 Text8CorpusReader::Text8CorpusReader(const std::string& filename) {
     _file.open(filename.c_str());
+    _file.seekg(0, _file.end);
+    _dist = std::uniform_int_distribution<int>(0, int(_file.tellg())-1);
+    _file.seekg(0);
 }
 
 Text8CorpusReader::~Text8CorpusReader() {
@@ -21,4 +24,9 @@ bool Text8CorpusReader::eof() {
 void Text8CorpusReader::startOver() {
     _file.clear();
     _file.seekg(0);
+}
+
+void Text8CorpusReader::randomizePosition() {
+    _file.seekg(_dist(_gen));
+    readWord();
 }
