@@ -10,7 +10,8 @@ int main() {
     Text8CorpusReader reader("corpus/text8");
     VocabManager vocabmgr;
     vocabmgr.compute(&reader);
-    SelectiveExampleMaker ex(&reader, &vocabmgr, 5);
+    SelectiveExampleMaker ex(&reader, &vocabmgr, 5, true);
+    //ExampleMaker ex(&reader);
     SecondModel model(100, &vocabmgr);
     Trainer trainer(&model, &ex);
     trainer.infiniteTest("result.bin");

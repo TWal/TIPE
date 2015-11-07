@@ -12,8 +12,8 @@ static float sigmoid(float x) {
     // 1/2 + 1/2tanh(x/2)
 }
 
-SecondModel::SecondModel(int n, VocabManager* vocabmgr) :
-    _n(n), _vocabmgr(vocabmgr) {
+SecondModel::SecondModel(int n, VocabManager* vocabmgr, int nsTableSize, float nsTablePower) :
+    _n(n), _vocabmgr(vocabmgr), _nsTablePower(nsTablePower) {
 
     std::normal_distribution<float> dist(RANDOM_MEAN, RANDOM_STDDEV);
     std::mt19937 gen;
@@ -27,6 +27,8 @@ SecondModel::SecondModel(int n, VocabManager* vocabmgr) :
             _w2[i](j) = dist(gen);
         }
     }
+
+    _buildNsTable(nsTableSize);
 }
 
 void SecondModel::train(const std::vector<std::string>& sentence, float alpha) {
@@ -187,15 +189,34 @@ void SecondModel::sentenceToContext(const std::vector<std::string>& sentence, st
 }
 
 std::vector<int> SecondModel::negSample(int word) {
-    std::uniform_int_distribution<int> dist = std::uniform_int_distribution<int>(0, _vocabmgr->getVocabSize()-2);
+    std::uniform_int_distribution<int> dist = std::uniform_int_distribution<int>(0, _nsTable.size()-1);
     std::vector<int> result;
     for(int i = 0; i < 10; ++i) {
-        int nb = dist(_gen);
-        if(nb >= word) {
-            nb += 1;
+        int nb = _nsTable[dist(_gen)];
+        if(nb == word) {
+            --i;
+            continue;
         }
         result.push_back(nb);
     }
     return result;
+}
+
+void SecondModel::_buildNsTable(int nsTableSize) {
+    _nsTable.clear();
+    float sum = 0;
+    for(int i = 0; i < _vocabmgr->getVocabSize(); ++i) {
+        sum += pow(_vocabmgr->getCount(i), _nsTablePower);
+    }
+
+    float proportionSum = 0;
+    int tableSum = 0;
+    for(int i = 0; i < _vocabmgr->getVocabSize(); ++i) {
+        proportionSum += pow(_vocabmgr->getCount(i), _nsTablePower)/sum;
+        while(tableSum < proportionSum*nsTableSize && tableSum < nsTableSize) {
+            _nsTable.push_back(i);
+            tableSum += 1;
+        }
+    }
 }
 

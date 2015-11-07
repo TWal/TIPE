@@ -11,7 +11,7 @@
 
 class SecondModel : public Model {
     public:
-        SecondModel(int n, VocabManager* vocabmgr);
+        SecondModel(int n, VocabManager* vocabmgr, int nsTableSize=100000000, float nsTablePower=0.75);
         virtual void train(const std::vector<std::string>& sentence, float alpha);
         virtual int sentenceSize();
         virtual void save(const std::string& file);
@@ -31,10 +31,13 @@ class SecondModel : public Model {
         std::vector<int> negSample(int word);
 
     private:
+        void _buildNsTable(int nsTableSize);
         int _n;
         VocabManager* _vocabmgr;
+        float _nsTablePower;
         std::vector<Eigen::VectorXf> _w1;
         std::vector<Eigen::VectorXf> _w2;
+        std::vector<int> _nsTable;
         std::mt19937 _gen;
 };
 
