@@ -9,6 +9,7 @@ SET(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
 set(${PROJECT_NAME}_SOURCES
     src/main.cpp
     src/ExampleMaker.cpp
+    src/SelectiveExampleMaker.cpp
     src/Text8CorpusReader.cpp
     src/DummyModel.cpp
     src/FirstModel.cpp
@@ -16,6 +17,7 @@ set(${PROJECT_NAME}_SOURCES
     src/Trainer.cpp
     src/Serializer.cpp
     src/Distances.cpp
+    src/VocabManager.cpp
 )
 
 find_package(Eigen REQUIRED)

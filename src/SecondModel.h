@@ -4,14 +4,14 @@
 #include <vector>
 #include <string>
 #include <Eigen/Dense>
-#include <unordered_map>
 #include <random>
 #include <array>
 #include "Model.h"
+#include "VocabManager.h"
 
 class SecondModel : public Model {
     public:
-        SecondModel(int n, int v);
+        SecondModel(int n, VocabManager* vocabmgr);
         virtual void train(const std::vector<std::string>& sentence, float alpha);
         virtual int sentenceSize();
         virtual void save(const std::string& file);
@@ -29,14 +29,12 @@ class SecondModel : public Model {
         void gradCheck(const std::array<int, SecondModel::CTX_SIZE>& ctx, int j, int k);
         void sentenceToContext(const std::vector<std::string>& sentence, std::array<int, SecondModel::CTX_SIZE>& ctx, int& answer);
         std::vector<int> negSample(int word);
-        int getWordInd(const std::string& word);
 
     private:
         int _n;
-        int _v;
+        VocabManager* _vocabmgr;
         std::vector<Eigen::VectorXf> _w1;
         std::vector<Eigen::VectorXf> _w2;
-        std::unordered_map<std::string, int> _wordtoind;
         std::mt19937 _gen;
 };
 

@@ -12,13 +12,13 @@ static float sigmoid(float x) {
     // 1/2 + 1/2tanh(x/2)
 }
 
-SecondModel::SecondModel(int n, int v) :
-    _n(n), _v(v) {
+SecondModel::SecondModel(int n, VocabManager* vocabmgr) :
+    _n(n), _vocabmgr(vocabmgr) {
 
     std::normal_distribution<float> dist(RANDOM_MEAN, RANDOM_STDDEV);
     std::mt19937 gen;
 
-    for(int i = 0; i < _v; ++i) {
+    for(int i = 0; i < _vocabmgr->getVocabSize(); ++i) {
         Eigen::VectorXf vec(_n);
         _w1.push_back(Eigen::VectorXf::Zero(_n));
         _w2.push_back(Eigen::VectorXf::Zero(_n));
@@ -58,17 +58,12 @@ void SecondModel::save(const std::string& file) {
     Serializer s;
     s.initWrite(file);
     s.writeInt(_n);
-    s.writeInt(_v);
+    _vocabmgr->save(s);
     for(const Eigen::VectorXf& v : _w1) {
         s.writeVec(v);
     }
     for(const Eigen::VectorXf& v : _w2) {
         s.writeVec(v);
-    }
-    s.writeInt(_wordtoind.size());
-    for(const std::pair<std::string, int>& p : _wordtoind) {
-        s.writeString(p.first);
-        s.writeInt(p.second);
     }
 }
 
@@ -76,21 +71,14 @@ void SecondModel::load(const std::string& file) {
     Serializer s;
     s.initRead(file);
     _n = s.readInt();
-    _v = s.readInt();
+    _vocabmgr->load(s);
     _w1.clear();
     _w2.clear();
-    for(int i = 0; i < _v; ++i) {
+    for(int i = 0; i < _vocabmgr->getVocabSize(); ++i) {
         _w1.push_back(s.readVec());
     }
-    for(int i = 0; i < _v; ++i) {
+    for(int i = 0; i < _vocabmgr->getVocabSize(); ++i) {
         _w2.push_back(s.readVec());
-    }
-    _wordtoind.clear();
-    int size = s.readInt();
-    for(int i = 0; i < size; ++i) {
-        std::string word = s.readString();
-        int ind = s.readInt();
-        _wordtoind.emplace(word, ind);
     }
 }
 
@@ -98,7 +86,7 @@ void SecondModel::displayState(const std::vector<std::string>& sentence) {
     std::array<int, SecondModel::CTX_SIZE> ctx;
     int answer;
     sentenceToContext(sentence, ctx, answer);
-    printf("error negsample: %f\terror softmax:%f\twords: %d\n", errorNegSample(ctx, answer), errorSoftmax(ctx, answer), _wordtoind.size());
+    printf("error negsample: %f\terror softmax:%f\twords: %d\n", errorNegSample(ctx, answer), errorSoftmax(ctx, answer), _vocabmgr->getVocabSize());
 }
 
 Eigen::VectorXf SecondModel::hidden(const std::array<int, SecondModel::CTX_SIZE>& ctx) {
@@ -134,12 +122,12 @@ float SecondModel::errorNegSample(const std::array<int, SecondModel::CTX_SIZE>& 
 float SecondModel::errorSoftmax(const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer) {
     Eigen::VectorXf h = hidden(ctx);
     std::vector<double> res;
-    for(int i = 0; i < _v; ++i) {
+    for(int i = 0; i < _vocabmgr->getVocabSize(); ++i) {
         res.push_back(hypothesis(h, i));
     }
     double max = *std::max_element(res.begin(), res.end());
     double sum = 0;
-    for(int i = 0; i < _v; ++i) {
+    for(int i = 0; i < _vocabmgr->getVocabSize(); ++i) {
         res[i] = exp(res[i] - max);
         sum += res[i];
     }
@@ -190,16 +178,16 @@ void SecondModel::sentenceToContext(const std::vector<std::string>& sentence, st
     int j = 0;
     for(int i = 0; i < sentence.size(); ++i) {
         if(i == sentence.size()/2) {
-            answer = getWordInd(sentence[i]);
+            answer = _vocabmgr->getIndex(sentence[i]);
         } else {
-            ctx[j] = getWordInd(sentence[i]);
+            ctx[j] = _vocabmgr->getIndex(sentence[i]);
             ++j;
         }
     }
 }
 
 std::vector<int> SecondModel::negSample(int word) {
-    std::uniform_int_distribution<int> dist = std::uniform_int_distribution<int>(0, _v-2);
+    std::uniform_int_distribution<int> dist = std::uniform_int_distribution<int>(0, _vocabmgr->getVocabSize()-2);
     std::vector<int> result;
     for(int i = 0; i < 10; ++i) {
         int nb = dist(_gen);
@@ -210,16 +198,4 @@ std::vector<int> SecondModel::negSample(int word) {
     }
     return result;
 }
-
-int SecondModel::getWordInd(const std::string& word) {
-    auto it = _wordtoind.find(word);
-    if(it != _wordtoind.end()) {
-        return it->second;
-    } else {
-        int id = _wordtoind.size();
-        _wordtoind.emplace(word, id);
-        return id;
-    }
-}
-
 
