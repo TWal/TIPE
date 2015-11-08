@@ -3,6 +3,7 @@
 #include "Serializer.h"
 #include <cmath>
 #include <cfloat>
+#include <fstream>
 
 static const float RANDOM_MEAN = 0.0;
 static const float RANDOM_STDDEV = 1.0;
@@ -67,6 +68,7 @@ void SecondModel::save(const std::string& file) {
     for(const Eigen::VectorXf& v : _w2) {
         s.writeVec(v);
     }
+    s.writeInt(_nsTable.size());
 }
 
 void SecondModel::load(const std::string& file) {
@@ -82,6 +84,7 @@ void SecondModel::load(const std::string& file) {
     for(int i = 0; i < _vocabmgr->getVocabSize(); ++i) {
         _w2.push_back(s.readVec());
     }
+    _buildNsTable(s.readInt());
 }
 
 void SecondModel::displayState(const std::vector<std::string>& sentence) {
@@ -222,6 +225,47 @@ Eigen::VectorXf SecondModel::getVector(int ind, bool useW1) {
     } else {
         return _w2[ind];
     }
+}
+
+void SecondModel::checkAccuracy(const std::string& filename, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, bool useW1) {
+    std::ifstream file;
+    file.open(filename.c_str());
+    int totaltotal = 0;
+    int totalaccurate = 0;
+    while(!file.eof()) {
+        int accurate = 0;
+        int total = 0;
+        std::string categoryName;
+        std::getline(file, categoryName);
+        while(file.peek() != ':' && !file.eof()) {
+            std::array<std::string, 4> words;
+            for(int i = 0; i < 4; ++i) {
+                std::getline(file, words[i], i < 3 ? ' ' : '\n');
+                std::transform(words[i].begin(), words[i].end(), words[i].begin(), ::tolower);
+            }
+            std::array<Eigen::VectorXf, 4> vecs;
+            bool stop = false;
+            for(int i = 0; i < 4; ++i) {
+                int ind = _vocabmgr->getIndex(words[i]);
+                if(ind < 0) {
+                    stop = true;
+                    break;
+                }
+                vecs[i] = getVector(_vocabmgr->getIndex(words[i]), useW1);
+            }
+            if(stop) {
+                continue;
+            }
+            if(closestWord(-vecs[0] + vecs[1] + vecs[2], distance, useW1) == words[3]) {
+                accurate += 1;
+            }
+            total += 1;
+        }
+        printf("%s : %d/%d, %f%%\n", categoryName.c_str(), accurate, total, float(accurate)/total*100);
+        totaltotal += total;
+        totalaccurate += accurate;
+    }
+    printf("Global results:  %d/%d, %f%%\n", totalaccurate, totaltotal, float(totalaccurate)/totaltotal*100);
 }
 
 void SecondModel::_buildNsTable(int nsTableSize) {

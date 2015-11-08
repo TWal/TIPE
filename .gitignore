@@ -4,4 +4,4 @@ Makefile
 cmake_install.cmake
 bin
 compile_commands.json
-corpus
+data

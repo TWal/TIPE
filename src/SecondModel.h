@@ -31,6 +31,7 @@ class SecondModel : public Model {
         std::vector<int> negSample(int word);
         std::string closestWord(Eigen::VectorXf vect, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, bool useW1 = true);
         Eigen::VectorXf getVector(int ind, bool useW1 = true);
+        void checkAccuracy(const std::string& filename, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, bool useW1 = true);
 
     private:
         void _buildNsTable(int nsTableSize);
