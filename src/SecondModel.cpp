@@ -202,6 +202,28 @@ std::vector<int> SecondModel::negSample(int word) {
     return result;
 }
 
+std::string SecondModel::closestWord(Eigen::VectorXf vect, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, bool useW1) {
+    std::vector<Eigen::VectorXf>* vectors = useW1 ? &_w1 : &_w2;
+    float min = distance(vect, (*vectors)[0]);
+    int ind = 0;
+    for(int i = 1; i < _vocabmgr->getVocabSize(); ++i) {
+        float dist = distance(vect, (*vectors)[i]);
+        if (dist < min) {
+            min = dist;
+            ind = i;
+        }
+    }
+    return _vocabmgr->getWord(ind);
+}
+
+Eigen::VectorXf SecondModel::getVector(int ind, bool useW1) {
+    if(useW1) {
+        return _w1[ind];
+    } else {
+        return _w2[ind];
+    }
+}
+
 void SecondModel::_buildNsTable(int nsTableSize) {
     _nsTable.clear();
     float sum = 0;

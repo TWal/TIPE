@@ -29,6 +29,8 @@ class SecondModel : public Model {
         void gradCheck(const std::array<int, SecondModel::CTX_SIZE>& ctx, int j, int k);
         void sentenceToContext(const std::vector<std::string>& sentence, std::array<int, SecondModel::CTX_SIZE>& ctx, int& answer);
         std::vector<int> negSample(int word);
+        std::string closestWord(Eigen::VectorXf vect, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, bool useW1 = true);
+        Eigen::VectorXf getVector(int ind, bool useW1 = true);
 
     private:
         void _buildNsTable(int nsTableSize);
