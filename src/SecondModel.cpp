@@ -196,11 +196,11 @@ std::vector<int> SecondModel::negSample(int word) {
     std::vector<int> result;
     for(int i = 0; i < 10; ++i) {
         int nb = _nsTable[dist(_gen)];
-        if(nb == word) {
+        if(nb != word) {
+            result.push_back(nb);
+        } else {
             --i;
-            continue;
         }
-        result.push_back(nb);
     }
     return result;
 }

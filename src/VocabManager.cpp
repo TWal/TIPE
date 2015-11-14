@@ -80,6 +80,7 @@ void VocabManager::load(Serializer& s) {
 }
 
 void VocabManager::removeWord(int ind, bool fixWordtoind) {
+    _total -= _counts[ind];
     _wordtoind.erase(_wordtoind.find(_indtoword[ind]));
     _counts.erase(_counts.begin()+ind);
     _indtoword.erase(_indtoword.begin()+ind);
