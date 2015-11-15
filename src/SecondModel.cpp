@@ -5,9 +5,6 @@
 #include <cfloat>
 #include <fstream>
 
-static const float RANDOM_MEAN = 0.0;
-static const float RANDOM_STDDEV = 1.0;
-
 static float sigmoid(float x) {
     return 1/(1+exp(-x));
     // 1/2 + 1/2tanh(x/2)
@@ -16,7 +13,7 @@ static float sigmoid(float x) {
 SecondModel::SecondModel(int n, VocabManager* vocabmgr, int nsTableSize, float nsTablePower) :
     _n(n), _vocabmgr(vocabmgr), _nsTablePower(nsTablePower) {
 
-    std::normal_distribution<float> dist(RANDOM_MEAN, RANDOM_STDDEV);
+    std::uniform_real_distribution<float> dist(-0.5/n, 0.5/n);
     std::mt19937 gen;
 
     for(int i = 0; i < _vocabmgr->getVocabSize(); ++i) {
