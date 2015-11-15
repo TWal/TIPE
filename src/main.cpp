@@ -6,6 +6,7 @@
 #include "Trainer.h"
 #include "VocabManager.h"
 #include "Distances.h"
+#include <chrono>
 
 int main() {
     if(true) {
@@ -15,7 +16,9 @@ int main() {
         SelectiveExampleMaker ex(&reader, &vocabmgr, 5, false);
         SecondModel model(100, &vocabmgr);
         Trainer trainer(&model, &ex);
-        trainer.infiniteTest("result.bin");
+        trainer.train(vocabmgr.getTotal(), 0.025, 0.0001);
+        model.checkAccuracy("data/questions-words.txt", Distances::cosinus, true);
+        //trainer.infiniteTrain(0.025, "result.bin");
     } else {
         VocabManager vocabmgr;
         SecondModel model(100, &vocabmgr);

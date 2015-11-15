@@ -7,9 +7,10 @@
 class Trainer {
     public:
         Trainer(Model* model, ExampleMaker* ex);
-        void train();
-        void test(int n);
-        void infiniteTest(const std::string& filename);
+        void trainOnce(float alpha);
+        void train(int n, float alpha);
+        void train(int n, float alphaBegin, float alphaEnd);
+        void infiniteTrain(float alpha, const std::string& filename);
 
     private:
         Model* _model;
