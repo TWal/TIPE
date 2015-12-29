@@ -34,27 +34,18 @@ void SecondModel::train(const std::vector<std::string>& sentence, float alpha) {
     int answer;
     sentenceToContext(sentence, ctx, answer);
     std::vector<int> wrong = negSample (answer);
-    Eigen::VectorXf dW1 = derivW1Neg(ctx, answer, wrong);
-    Eigen::VectorXf dW2 = derivW2(ctx, answer, true);
-    std::vector<Eigen::VectorXf> dwrongW2;
-    for(int i = 0; i < wrong.size(); ++i) {
-        dwrongW2.push_back(derivW2(ctx, wrong[i], false));
-    }
 
-    if(false) {
-        checkDerivative(&_w2[answer], dW2, ctx, answer, wrong);
-        for(int i = 0; i < wrong.size(); ++i) {
-            checkDerivative(&_w2[wrong[i]], dwrongW2[i], ctx, answer, wrong);
-        }
-        for(int i = 0; i < SecondModel::CTX_SIZE; ++i) {
-            checkDerivative(&_w1[ctx[i]], dW1, ctx, answer, wrong);
-        }
-    }
-
+    Eigen::VectorXf h = hidden(ctx);
+    float a = sigmoid(hypothesis(h, answer))-1;
+    Eigen::VectorXf dW1 = a*_w2[answer];
+    Eigen::VectorXf dW2 = a*h;
     _w2[answer] -= alpha*dW2;
-    for(int i = 0; i < wrong.size(); ++i) {
-        _w2[wrong[i]] -= alpha*dwrongW2[i];
+    for(int i : wrong) {
+        float b = sigmoid(hypothesis(h, i));
+        dW1 += b*_w2[i];
+        _w2[i] -= b*h*alpha;
     }
+
     for(int i = 0; i < SecondModel::CTX_SIZE; ++i) {
         _w1[ctx[i]] -= alpha*dW1;
     }
@@ -144,26 +135,6 @@ float SecondModel::errorSoftmax(const std::array<int, SecondModel::CTX_SIZE>& ct
         sum += res[i];
     }
     return -log(res[answer]/sum);
-}
-
-
-Eigen::VectorXf SecondModel::derivW1(const std::array<int, SecondModel::CTX_SIZE>& ctx, int i, bool ok) {
-    Eigen::VectorXf h = hidden(ctx);
-    Eigen::VectorXf eh = (sigmoid(hypothesis(h, i))-ok)*_w2[i];
-    return eh/CTX_SIZE;
-}
-
-Eigen::VectorXf SecondModel::derivW1Neg(const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer, const std::vector<int>& wrong) {
-    Eigen::VectorXf dW1 = derivW1(ctx, answer, true);
-    for(int i = 0; i < wrong.size(); i++) {
-        dW1 += derivW1(ctx, wrong[i], false);
-    }
-    return dW1;
-}
-
-Eigen::VectorXf SecondModel::derivW2(const std::array<int, SecondModel::CTX_SIZE>& ctx, int i, bool ok) {
-    Eigen::VectorXf h = hidden(ctx);
-    return (sigmoid(hypothesis(h, i))-ok)*h;
 }
 
 void SecondModel::checkDerivative(Eigen::VectorXf* vector, const Eigen::VectorXf& deriv, const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer, const std::vector<int> wrong) {
