@@ -16,14 +16,14 @@ int main() {
         SelectiveExampleMaker ex(&reader, &vocabmgr, 5, false);
         SecondModel model(100, &vocabmgr);
         Trainer trainer(&model, &ex);
-        trainer.train(vocabmgr.getTotal(), 0.025, 0.0001);
-        model.checkAccuracy("data/questions-words.txt", Distances::cosinus, true);
-        //trainer.infiniteTrain(0.025, "result.bin");
+        trainer.train(vocabmgr.getTotal()*1, 0.05, 0.0001);
+        model.save("result.bin");
+        model.checkAccuracy("data/questions-words.txt", Distances::cosinus);
     } else {
         VocabManager vocabmgr;
         SecondModel model(100, &vocabmgr);
         model.load("result.bin");
-        model.checkAccuracy("data/questions-words.txt", Distances::cosinus, true);
+        model.checkAccuracy("data/questions-words.txt", Distances::cosinus);
     }
     return 0;
 }

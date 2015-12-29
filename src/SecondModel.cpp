@@ -213,12 +213,14 @@ std::vector<int> SecondModel::negSample(int word) {
     return result;
 }
 
-std::string SecondModel::closestWord(Eigen::VectorXf vect, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, bool useW1) {
-    std::vector<Eigen::VectorXf>* vectors = useW1 ? &_w1 : &_w2;
-    float min = distance(vect, (*vectors)[0]);
+std::string SecondModel::closestWord(Eigen::VectorXf vect, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, const std::unordered_set<int>& blacklist) {
+    float min = distance(vect, _w1[0]);
     int ind = 0;
     for(int i = 1; i < _vocabmgr->getVocabSize(); ++i) {
-        float dist = distance(vect, (*vectors)[i]);
+        if(blacklist.find(i) != blacklist.end()) {
+            continue;
+        }
+        float dist = distance(vect, _w1[i]);
         if (dist < min) {
             min = dist;
             ind = i;
@@ -227,15 +229,11 @@ std::string SecondModel::closestWord(Eigen::VectorXf vect, std::function<float(c
     return _vocabmgr->getWord(ind);
 }
 
-Eigen::VectorXf SecondModel::getVector(int ind, bool useW1) {
-    if(useW1) {
-        return _w1[ind];
-    } else {
-        return _w2[ind];
-    }
+Eigen::VectorXf SecondModel::getVector(int ind) {
+    return _w1[ind];
 }
 
-void SecondModel::checkAccuracy(const std::string& filename, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, bool useW1) {
+void SecondModel::checkAccuracy(const std::string& filename, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance) {
     std::ifstream file;
     file.open(filename.c_str());
     int totaltotal = 0;
@@ -252,19 +250,20 @@ void SecondModel::checkAccuracy(const std::string& filename, std::function<float
                 std::transform(words[i].begin(), words[i].end(), words[i].begin(), ::tolower);
             }
             std::array<Eigen::VectorXf, 4> vecs;
+            std::array<int, 4> inds;
             bool stop = false;
             for(int i = 0; i < 4; ++i) {
-                int ind = _vocabmgr->getIndex(words[i]);
-                if(ind < 0) {
+                inds[i]  = _vocabmgr->getIndex(words[i]);
+                if(inds[i] < 0) {
                     stop = true;
                     break;
                 }
-                vecs[i] = getVector(_vocabmgr->getIndex(words[i]), useW1);
+                vecs[i] = getVector(inds[i]);
             }
             if(stop) {
                 continue;
             }
-            if(closestWord(-vecs[0] + vecs[1] + vecs[2], distance, useW1) == words[3]) {
+            if(closestWord(-vecs[0] + vecs[1] + vecs[2], distance, {inds[0], inds[1], inds[2]}) == words[3]) {
                 accurate += 1;
             }
             total += 1;
