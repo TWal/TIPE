@@ -33,19 +33,29 @@ void SecondModel::train(const std::vector<std::string>& sentence, float alpha) {
     std::array<int, SecondModel::CTX_SIZE> ctx;
     int answer;
     sentenceToContext(sentence, ctx, answer);
-    Eigen::VectorXf dW2 = derivW2 (ctx, answer, true);
     std::vector<int> wrong = negSample (answer);
+    Eigen::VectorXf dW1 = derivW1Neg(ctx, answer, wrong);
+    Eigen::VectorXf dW2 = derivW2(ctx, answer, true);
     std::vector<Eigen::VectorXf> dwrongW2;
-    Eigen::VectorXf dW1 = derivW1 (ctx, answer, true);
-    for(int i = 0; i < wrong.size(); i++) {
+    for(int i = 0; i < wrong.size(); ++i) {
         dwrongW2.push_back(derivW2(ctx, wrong[i], false));
-        dW1 += derivW1 (ctx, wrong[i], false);
     }
+
+    if(false) {
+        checkDerivative(&_w2[answer], dW2, ctx, answer, wrong);
+        for(int i = 0; i < wrong.size(); ++i) {
+            checkDerivative(&_w2[wrong[i]], dwrongW2[i], ctx, answer, wrong);
+        }
+        for(int i = 0; i < SecondModel::CTX_SIZE; ++i) {
+            checkDerivative(&_w1[ctx[i]], dW1, ctx, answer, wrong);
+        }
+    }
+
     _w2[answer] -= alpha*dW2;
-    for(int i = 0; i < wrong.size(); i++) {
+    for(int i = 0; i < wrong.size(); ++i) {
         _w2[wrong[i]] -= alpha*dwrongW2[i];
     }
-    for(int i = 0; i < SecondModel::CTX_SIZE; i++) {
+    for(int i = 0; i < SecondModel::CTX_SIZE; ++i) {
         _w1[ctx[i]] -= alpha*dW1;
     }
 }
@@ -88,7 +98,7 @@ void SecondModel::displayState(const std::vector<std::string>& sentence) {
     std::array<int, SecondModel::CTX_SIZE> ctx;
     int answer;
     sentenceToContext(sentence, ctx, answer);
-    printf("error negsample: %f\terror softmax:%f\twords: %d\n", errorNegSample(ctx, answer), errorSoftmax(ctx, answer), _vocabmgr->getVocabSize());
+    printf("error negsample: %f\terror softmax:%f\twords: %d\n", errorNegSample(ctx, answer, negSample(answer)), errorSoftmax(ctx, answer), _vocabmgr->getVocabSize());
 }
 
 Eigen::VectorXf SecondModel::hidden(const std::array<int, SecondModel::CTX_SIZE>& ctx) {
@@ -112,10 +122,10 @@ float SecondModel::error(const std::array<int, SecondModel::CTX_SIZE>& ctx, int 
     }
 }
 
-float SecondModel::errorNegSample(const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer) {
+
+float SecondModel::errorNegSample(const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer, const std::vector<int>& wrong) {
     float result = error(ctx, answer, true);
-    std::vector<int> sample = negSample(answer);
-    for(int i : sample) {
+    for(int i : wrong) {
         result += error(ctx, i, false);
     }
     return result;
@@ -143,38 +153,39 @@ Eigen::VectorXf SecondModel::derivW1(const std::array<int, SecondModel::CTX_SIZE
     return eh/CTX_SIZE;
 }
 
+Eigen::VectorXf SecondModel::derivW1Neg(const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer, const std::vector<int>& wrong) {
+    Eigen::VectorXf dW1 = derivW1(ctx, answer, true);
+    for(int i = 0; i < wrong.size(); i++) {
+        dW1 += derivW1(ctx, wrong[i], false);
+    }
+    return dW1;
+}
+
 Eigen::VectorXf SecondModel::derivW2(const std::array<int, SecondModel::CTX_SIZE>& ctx, int i, bool ok) {
     Eigen::VectorXf h = hidden(ctx);
     return (sigmoid(hypothesis(h, i))-ok)*h;
 }
 
-void SecondModel::gradCheck(const std::array<int, SecondModel::CTX_SIZE>& ctx, int j, int k) {
-    float epsilon = sqrt(FLT_EPSILON);
-    for(int b = 0; b < 2; ++b) {
-        for(int i = 0; i < _n; ++i) {
-            float tmp = _w1[ctx[j]](i);
-            _w1[ctx[j]](i) = tmp + epsilon;
-            float errpe = error(ctx, k, b);
-            _w1[ctx[j]](i) = tmp - epsilon;
-            float errme = error(ctx, k, b);
-            _w1[ctx[j]](i) = tmp;
-            float approx = (errpe-errme)/(2*epsilon);
-            float calc = derivW1(ctx, k, b)(i);
-            printf("\t%f\t%f\t%f\t%f\t%d\t%d\n", calc-approx, calc/approx, calc, approx, i, b);
-        }
-        for(int i = 0; i < _n; ++i) {
-            float tmp = _w2[k](i);
-            _w2[k](i) = tmp + epsilon;
-            float errpe = error(ctx, k, b);
-            _w2[k](i) = tmp - epsilon;
-            float errme = error(ctx, k, b);
-            _w2[k](i) = tmp;
-            float approx = (errpe-errme)/(2*epsilon);
-            float calc = derivW2(ctx, k, b)(i);
-            printf("\t%f\t%f\t%f\t%f\t%d\t%d\n", calc-approx, calc/approx, calc, approx, i, b);
-        }
+void SecondModel::checkDerivative(Eigen::VectorXf* vector, const Eigen::VectorXf& deriv, const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer, const std::vector<int> wrong) {
+    float epsilon = 1e-2;
+    Eigen::VectorXf& vec = *vector;
+    Eigen::VectorXf approx = Eigen::VectorXf::Zero(vec.size());
+    for(int i = 0; i < vec.size(); ++i) {
+        float tmp = vec[i];
+        vec[i] = tmp + epsilon;
+        float errpe = errorNegSample(ctx, answer, wrong);
+        vec[i] = tmp - epsilon;
+        float errme = errorNegSample(ctx, answer, wrong);
+        vec[i] = tmp;
+        float approximate = (errpe-errme)/(2*epsilon);
+        approx[i] = approximate;
+    }
+    float dot = deriv.dot(approx)/sqrt(deriv.dot(deriv)*approx.dot(approx));
+    if(fabs(1-dot) >= 1e-2 || dot != dot) {
+        printf("checkDerivative: dot = %f\n", dot);
     }
 }
+
 
 void SecondModel::sentenceToContext(const std::vector<std::string>& sentence, std::array<int, SecondModel::CTX_SIZE>& ctx, int& answer) {
     int j = 0;

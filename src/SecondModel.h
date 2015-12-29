@@ -22,11 +22,12 @@ class SecondModel : public Model {
         Eigen::VectorXf hidden(const std::array<int, SecondModel::CTX_SIZE>& ctx);
         float hypothesis(const Eigen::VectorXf& h, int i);
         float error(const std::array<int, SecondModel::CTX_SIZE>& ctx, int i, bool ok);
-        float errorNegSample(const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer);
+        float errorNegSample(const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer, const std::vector<int>& wrong);
         float errorSoftmax(const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer);
         Eigen::VectorXf derivW1(const std::array<int, SecondModel::CTX_SIZE>& ctx, int i, bool ok);
+        Eigen::VectorXf derivW1Neg(const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer, const std::vector<int>& wrong);
         Eigen::VectorXf derivW2(const std::array<int, SecondModel::CTX_SIZE>& ctx, int i, bool ok);
-        void gradCheck(const std::array<int, SecondModel::CTX_SIZE>& ctx, int j, int k);
+        void checkDerivative(Eigen::VectorXf* vector, const Eigen::VectorXf& deriv, const std::array<int, SecondModel::CTX_SIZE>& ctx, int answer, const std::vector<int> wrong);
         void sentenceToContext(const std::vector<std::string>& sentence, std::array<int, SecondModel::CTX_SIZE>& ctx, int& answer);
         std::vector<int> negSample(int word);
         std::string closestWord(Eigen::VectorXf vect, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, bool useW1 = true);
