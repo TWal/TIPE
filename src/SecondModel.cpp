@@ -22,7 +22,7 @@ SecondModel::SecondModel(int n, VocabManager* vocabmgr, int nsTableSize, float n
         _w2.push_back(Eigen::VectorXf::Zero(_n));
         for(int j = 0; j < _n; ++j) {
             _w1[i](j) = dist(gen);
-            _w2[i](j) = dist(gen);
+            _w2[i](j) = 0;
         }
     }
 
