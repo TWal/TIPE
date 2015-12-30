@@ -44,6 +44,14 @@ int Serializer::readInt() {
     return readT<int>(_file);
 }
 
+void Serializer::writeUint64(uint64_t i) {
+    writeT(i, _file);
+}
+
+uint64_t Serializer::readUint64() {
+    return readT<uint64_t>(_file);
+}
+
 void Serializer::writeVec(const Eigen::VectorXf& v) {
     writeT(v.size(), _file);
     for(int i = 0; i < v.size(); ++i) {

@@ -8,8 +8,8 @@ class Trainer {
     public:
         Trainer(Model* model, ExampleMaker* ex);
         void trainOnce(float alpha);
-        void train(int n, float alpha);
-        void train(int n, float alphaBegin, float alphaEnd);
+        void train(uint64_t n, float alpha);
+        void train(uint64_t n, float alphaBegin, float alphaEnd);
         void infiniteTrain(float alpha, const std::string& filename);
 
     private:

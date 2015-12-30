@@ -11,7 +11,7 @@ void Trainer::trainOnce(float alpha) {
     _model->train(_ex->getExample(_model->sentenceSize()), alpha);
 }
 
-void Trainer::train(int n, float alpha) {
+void Trainer::train(uint64_t n, float alpha) {
     for (int i = 0; i <= n; i++) {
         trainOnce(alpha);
         if (i%100000 == 0) {
@@ -20,10 +20,10 @@ void Trainer::train(int n, float alpha) {
     }
 }
 
-void Trainer::train(int n, float alphaBegin, float alphaMin) {
+void Trainer::train(uint64_t n, float alphaBegin, float alphaMin) {
     std::chrono::high_resolution_clock::time_point last = std::chrono::high_resolution_clock::now();
     const int messageDistance = 100000;
-    for(int i = 1; i <= n; ++i) {
+    for(uint64_t i = 1; i <= n; ++i) {
         float alpha = std::max(alphaBegin*(1-float(i)/n), alphaMin);
         trainOnce(alpha);
         if(i%messageDistance == 0) {

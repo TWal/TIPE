@@ -13,7 +13,7 @@ class VocabManager {
         int getCount(int ind);
         int getIndex(const std::string& word);
         const std::string& getWord(int ind);
-        int getTotal();
+        uint64_t getTotal();
         int getVocabSize();
         void save(Serializer& s);
         void load(Serializer& s);
@@ -23,8 +23,8 @@ class VocabManager {
     private:
         std::unordered_map<std::string, int> _wordtoind;
         std::vector<std::string> _indtoword;
-        std::vector<int> _counts;
-        int _total;
+        std::vector<uint64_t> _counts;
+        uint64_t _total;
 };
 
 #endif

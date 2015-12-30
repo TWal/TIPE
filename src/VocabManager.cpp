@@ -35,7 +35,7 @@ const std::string& VocabManager::getWord(int ind) {
     return _indtoword[ind];
 }
 
-int VocabManager::getTotal() {
+uint64_t VocabManager::getTotal() {
     return _total;
 }
 
@@ -53,9 +53,9 @@ void VocabManager::save(Serializer& s) {
         s.writeString(str);
     }
     for(int count : _counts) {
-        s.writeInt(count);
+        s.writeUint64(count);
     }
-    s.writeInt(_total);
+    s.writeUint64(_total);
 }
 
 void VocabManager::load(Serializer& s) {
@@ -74,9 +74,9 @@ void VocabManager::load(Serializer& s) {
     }
     _counts.clear();
     for(int i = 0; i < size; ++i) {
-        _counts.push_back(s.readInt());
+        _counts.push_back(s.readUint64());
     }
-    _total = s.readInt();
+    _total = s.readUint64();
 }
 
 void VocabManager::removeWord(int ind, bool fixWordtoind) {
