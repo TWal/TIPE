@@ -28,7 +28,7 @@ int VocabManager::getCount(int ind) {
 
 int VocabManager::getIndex(const std::string& word) {
     auto it = _wordtoind.find(word);
-    return it == _wordtoind.end() ? -1 : _wordtoind[word];
+    return it == _wordtoind.end() ? -1 : it->second;
 }
 
 const std::string& VocabManager::getWord(int ind) {
@@ -78,20 +78,22 @@ void VocabManager::load(Serializer& s) {
     }
     _total = s.readUint64();
 }
+void VocabManager::removeCountBelow(int minCount) {
+    std::vector<std::string> itw = _indtoword;
+    std::vector<uint64_t> c = _counts;
+    _indtoword.clear();
+    _counts.clear();
+    _wordtoind.clear();
+    _total = 0;
 
-void VocabManager::removeWord(int ind, bool fixWordtoind) {
-    _total -= _counts[ind];
-    _wordtoind.erase(_wordtoind.find(_indtoword[ind]));
-    _counts.erase(_counts.begin()+ind);
-    _indtoword.erase(_indtoword.begin()+ind);
-    if(fixWordtoind) {
-        for(int i = ind+1; i < _indtoword.size(); ++i) {
-            _wordtoind[_indtoword[i]] -= 1;
+    for(int i = 0; i < itw.size(); ++i) {
+        if(c[i] >= minCount) {
+            _total += c[i];
+            _counts.push_back(c[i]);
+            _indtoword.push_back(itw[i]);
         }
     }
-}
 
-void VocabManager::fixWordtoind() {
     for(int i = 0; i < _indtoword.size(); ++i) {
         _wordtoind[_indtoword[i]] = i;
     }

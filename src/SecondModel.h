@@ -12,6 +12,7 @@
 
 class SecondModel : public Model {
     public:
+        SecondModel(VocabManager* vocabmgr, const std::string& file);
         SecondModel(int n, VocabManager* vocabmgr, int nsTableSize=100000000, float nsTablePower=0.75);
         virtual void train(const std::vector<std::string>& sentence, float alpha);
         virtual int sentenceSize();

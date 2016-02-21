@@ -10,6 +10,11 @@ static float sigmoid(float x) {
     // 1/2 + 1/2tanh(x/2)
 }
 
+SecondModel::SecondModel(VocabManager* vocabmgr, const std::string& file) :
+    _vocabmgr(vocabmgr) {
+    load(file);
+}
+
 SecondModel::SecondModel(int n, VocabManager* vocabmgr, int nsTableSize, float nsTablePower) :
     _n(n), _vocabmgr(vocabmgr), _nsTablePower(nsTablePower) {
 

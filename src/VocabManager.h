@@ -17,8 +17,7 @@ class VocabManager {
         int getVocabSize();
         void save(Serializer& s);
         void load(Serializer& s);
-        void removeWord(int ind, bool fixWordtoind = true);
-        void fixWordtoind();
+        void removeCountBelow(int minCount);
 
     private:
         std::unordered_map<std::string, int> _wordtoind;

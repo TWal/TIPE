@@ -119,8 +119,7 @@ int main(int argc, char** argv) {
         }
 
         VocabManager vocabmgr;
-        SecondModel model(0, &vocabmgr);
-        model.load(opts.input);
+        SecondModel model(&vocabmgr, opts.input);
         model.checkAccuracy(opts.questions, Distances::cosinus);
         return 0;
     } else {
