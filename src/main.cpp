@@ -1,3 +1,4 @@
+#include <iostream>
 #include <stdio.h>
 #include <getopt.h>
 #include "Text8CorpusReader.h"
@@ -11,10 +12,6 @@
 void printUsage();
 
 int main(int argc, char** argv) {
-    if(argc < 2) {
-        printUsage();
-        return -1;
-    }
     if(std::string(argv[1]) == "train") {
         struct {
             int dim;
@@ -26,7 +23,8 @@ int main(int argc, char** argv) {
             int minCount;
             float alpha;
             float minAlpha;
-        } opts = {100, 5, "data/text8", "result.bin", "data/questions-words.txt", false, 5, 0.05, 0.0001};
+            float downsample;
+        } opts = {100, 5, "data/text8", "result.bin", "data/questions-words.txt", false, 5, 0.05, 0.0001, 1e-5};
         while(true) {
             static option longOptions[] = {
                 {"dim", required_argument, 0, 'd'},
@@ -37,10 +35,11 @@ int main(int argc, char** argv) {
                 {"random", no_argument, 0, 'r'},
                 {"mincount", required_argument, 0, 'm'},
                 {"alpha", required_argument, 0, 'a'},
-                {"minalpha", required_argument, 0, 'b'}
+                {"minalpha", required_argument, 0, 'b'},
+                {"downsample", required_argument, 0, 's'}
             };
             int optionIndex = 0;
-            int c = getopt_long(argc, argv, "d:i:c:o:q:rm:a:b:", longOptions, &optionIndex);
+            int c = getopt_long(argc, argv, "d:i:c:o:q:rm:a:b:s:", longOptions, &optionIndex);
             if(c == -1) {
                 break;
             }
@@ -72,6 +71,9 @@ int main(int argc, char** argv) {
                 case 'b':
                     opts.minAlpha = atof(optarg);
                     break;
+                case 's':
+                    opts.downsample = atof(optarg);
+                    break;
                 default:
                     break;
             }
@@ -81,8 +83,8 @@ int main(int argc, char** argv) {
         VocabManager vocabmgr;
         vocabmgr.compute(&reader);
         ExampleMaker* ex;
-        if(opts.minCount > 0) {
-            ex = new SelectiveExampleMaker(&reader, &vocabmgr, opts.minCount, opts.random);
+        if(opts.minCount > 0 || opts.downsample != 0) {
+            ex = new SelectiveExampleMaker(&reader, &vocabmgr, opts.minCount, opts.downsample, opts.random);
         } else {
             ex = new ExampleMaker(&reader);
         }
