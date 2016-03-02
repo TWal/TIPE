@@ -94,7 +94,7 @@ void SecondModel::displayState(const std::vector<std::string>& sentence) {
     std::array<int, SecondModel::CTX_SIZE> ctx;
     int answer;
     sentenceToContext(sentence, ctx, answer);
-    printf("error negsample: %f\terror softmax:%f\twords: %d\n", errorNegSample(ctx, answer, negSample(answer)), errorSoftmax(ctx, answer), _vocabmgr->getVocabSize());
+    printf("error negsample: %.4f\terror softmax:%.4f\twords: %d", errorNegSample(ctx, answer, negSample(answer)), errorSoftmax(ctx, answer), _vocabmgr->getVocabSize());
 }
 
 Eigen::VectorXf SecondModel::hidden(const std::array<int, SecondModel::CTX_SIZE>& ctx) {

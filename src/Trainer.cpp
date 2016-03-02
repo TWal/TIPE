@@ -1,6 +1,7 @@
 #include "Trainer.h"
 
 #include <chrono>
+#include <cmath>
 
 Trainer::Trainer(Model* model, ExampleMaker* ex) :
     _model(model),
@@ -28,9 +29,12 @@ void Trainer::train(uint64_t n, float alphaBegin, float alphaMin) {
         trainOnce(alpha);
         if(i%messageDistance == 0) {
             std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-            printf("Progress: %.2f%%\tAlpha: %.4f\tWords/s: %.2fk\n", 100*float(i)/n, alpha, messageDistance/std::chrono::duration_cast<std::chrono::duration<double>>(now-last).count()/1000);
+            double duration = std::chrono::duration_cast<std::chrono::duration<double>>(now-last).count();
+            double remaining = duration/messageDistance*(n-i);
+            printf("\rProgress: %.2f%%\tAlpha: %.4f\tWords/s: %.2fk\tRemaining: %dh%.1fmin\t|\t", 100*float(i)/n, alpha, messageDistance/duration/1000, (int)(remaining/3600), fmod(remaining, 3600)/60);
             last = now;
             _model->displayState(_ex->getLastExample());
+            fflush(stdout);
         }
     }
 }
