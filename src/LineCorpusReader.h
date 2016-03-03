@@ -1,18 +1,19 @@
-#ifndef TEXT8CORPUSREADER_H
-#define TEXT8CORPUSREADER_H
+#ifndef LINECORPUSREADER_H
+#define LINECORPUSREADER_H
 
 #include "CorpusReader.h"
 #include <fstream>
 #include <random>
 
-class Text8CorpusReader : public CorpusReader {
+class LineCorpusReader : public CorpusReader {
     public:
-        Text8CorpusReader(const std::string& filename);
-        ~Text8CorpusReader();
+        LineCorpusReader(const std::string& filename);
+        ~LineCorpusReader();
         virtual std::string readWord();
         virtual bool eof();
         virtual void startOver();
         virtual void randomizePosition();
+
     protected:
         std::ifstream _file;
         std::mt19937 _gen;

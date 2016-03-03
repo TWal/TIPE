@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <getopt.h>
-#include "Text8CorpusReader.h"
+#include "LineCorpusReader.h"
 #include "SelectiveExampleMaker.h"
 #include "DummyModel.h"
 #include "SecondModel.h"
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        Text8CorpusReader reader(opts.corpus);
+        LineCorpusReader reader(opts.corpus);
         VocabManager vocabmgr;
         vocabmgr.compute(&reader);
         ExampleMaker* ex;

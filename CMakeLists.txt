@@ -10,7 +10,8 @@ set(${PROJECT_NAME}_SOURCES
     src/main.cpp
     src/ExampleMaker.cpp
     src/SelectiveExampleMaker.cpp
-    src/Text8CorpusReader.cpp
+    src/CorpusReader.cpp
+    src/LineCorpusReader.cpp
     src/DummyModel.cpp
     src/FirstModel.cpp
     src/SecondModel.cpp

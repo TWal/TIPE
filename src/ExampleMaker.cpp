@@ -28,6 +28,11 @@ std::vector<std::string> ExampleMaker::getExample(int n) {
             _currentExample.clear();
             return getExample(n);
         }
+        if(_corpus->exampleBroken()) {
+            _currentExample.clear();
+            _corpus->clearBrokenFlag();
+            return getExample(n);
+        }
         current = _corpus->readWord();
         if(keepWord(current)) {
             _currentExample.push_back(current);
