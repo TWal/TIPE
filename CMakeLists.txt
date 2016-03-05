@@ -19,6 +19,7 @@ set(${PROJECT_NAME}_SOURCES
     src/Serializer.cpp
     src/Distances.cpp
     src/VocabManager.cpp
+    src/Utils.cpp
 )
 
 find_package(Eigen REQUIRED)

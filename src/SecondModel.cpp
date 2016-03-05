@@ -209,7 +209,7 @@ Eigen::VectorXf SecondModel::getVector(int ind) {
     return _w1[ind];
 }
 
-void SecondModel::checkAccuracy(const std::string& filename, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance) {
+void SecondModel::checkAccuracy(const std::string& filename, Distances::fun distance) {
     std::ifstream file;
     file.open(filename.c_str());
     int totaltotal = 0;

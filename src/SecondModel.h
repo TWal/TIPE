@@ -9,6 +9,7 @@
 #include <unordered_set>
 #include "Model.h"
 #include "VocabManager.h"
+#include "Distances.h"
 
 class SecondModel : public Model {
     public:
@@ -31,7 +32,7 @@ class SecondModel : public Model {
         std::vector<int> negSample(int word);
         std::string closestWord(Eigen::VectorXf vect, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, const std::unordered_set<int>& blacklist = {{}});
         Eigen::VectorXf getVector(int ind);
-        void checkAccuracy(const std::string& filename, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance);
+        void checkAccuracy(const std::string& filename, Distances::fun distance);
 
     private:
         void _buildNsTable(int nsTableSize);
