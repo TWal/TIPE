@@ -37,6 +37,7 @@ void Trainer::train(uint64_t n, float alphaBegin, float alphaMin) {
             fflush(stdout);
         }
     }
+    printf("\n");
 }
 
 void Trainer::infiniteTrain(float alpha, const std::string& filename) {

@@ -16,7 +16,8 @@ std::vector<std::string> ExampleMaker::getExample(int n) {
         newWords = n;
     } else {
         newWords = 1;
-        assert(n == _currentExample.size()); //To make the code simpler
+        //To make the code simpler, we check that newWords = 1 is accurate (under the hypothesis that `n` doesn't change from one call to another)
+        assert(n == _currentExample.size());
         _currentExample.erase(_currentExample.begin());
     }
 
@@ -29,8 +30,8 @@ std::vector<std::string> ExampleMaker::getExample(int n) {
             return getExample(n);
         }
         if(_corpus->exampleBroken()) {
-            _currentExample.clear();
             _corpus->clearBrokenFlag();
+            _currentExample.clear();
             return getExample(n);
         }
         current = _corpus->readWord();

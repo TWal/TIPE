@@ -14,8 +14,7 @@ void VocabManager::compute(CorpusReader* corpus) {
             _indtoword.push_back(word);
             _wordtoind.emplace(word, ind);
             _counts.push_back(1);
-        }
-        else {
+        } else {
             _counts[it->second]++;
         }
         _total++;

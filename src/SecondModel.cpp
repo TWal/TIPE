@@ -49,6 +49,8 @@ void SecondModel::train(const std::vector<std::string>& sentence, float alpha) {
         float b = sigmoid(hypothesis(h, i));
         dW1 += b*_w2[i];
         _w2[i] -= b*h*alpha;
+        //Changing _w1 changes the hidden layer, so we must update it (/!\ not in the original word2vec code)
+        h -= b*_w2[i]*alpha;
     }
 
     for(int i = 0; i < SecondModel::CTX_SIZE; ++i) {
@@ -189,7 +191,7 @@ std::vector<int> SecondModel::negSample(int word) {
     return result;
 }
 
-std::string SecondModel::closestWord(Eigen::VectorXf vect, std::function<float(const Eigen::VectorXf&, const Eigen::VectorXf&)> distance, const std::unordered_set<int>& blacklist) {
+std::string SecondModel::closestWord(Eigen::VectorXf vect, Distances::fun distance, const std::unordered_set<int>& blacklist) {
     float min = distance(vect, _w1[0]);
     int ind = 0;
     for(int i = 1; i < _vocabmgr->getVocabSize(); ++i) {
@@ -223,7 +225,7 @@ void SecondModel::checkAccuracy(const std::string& filename, Distances::fun dist
             std::array<std::string, 4> words;
             for(int i = 0; i < 4; ++i) {
                 std::getline(file, words[i], i < 3 ? ' ' : '\n');
-                std::transform(words[i].begin(), words[i].end(), words[i].begin(), ::tolower);
+                std::transform(words[i].begin(), words[i].end(), words[i].begin(), ::tolower); //Lowercase words[i]
             }
             std::array<Eigen::VectorXf, 4> vecs;
             std::array<int, 4> inds;
